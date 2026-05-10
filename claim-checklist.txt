@@ -1,0 +1,30 @@
+ADT INSURANCE CLAIM REPORTING CHECKLIST
+
+1) POLICY DETAILS
+- Policy number
+- Name of insured
+- Cover type
+
+2) INCIDENT DETAILS
+- Date and time of incident
+- Location
+- Brief incident description
+
+3) SUPPORTING DOCUMENTS
+- Police abstract (where applicable)
+- Photos and videos
+- Third-party details (if any)
+- Driver or employee statement
+- Repair estimate or loss assessment
+
+4) CONTACT DETAILS
+- Primary contact name
+- Phone / WhatsApp number
+- Email address
+
+5) QUICK ACTION
+- Report immediately to ADT via WhatsApp or call
+- Keep all original documents
+- Do not authorize repairs without guidance unless emergency safety requires it
+
+For urgent support, contact ADT Claims Desk: +254 711 533 245

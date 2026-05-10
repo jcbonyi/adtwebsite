@@ -1,0 +1,108 @@
+async function fetchPosts() {
+  try {
+    const response = await fetch("/api/blog/posts");
+    if (!response.ok) throw new Error("API unavailable");
+    const data = await response.json();
+    return data.posts || [];
+  } catch (_error) {
+    const fallback = await fetch("data/blog-posts.json");
+    return fallback.json();
+  }
+}
+
+function getQueryParam(key) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(key);
+}
+
+function formatDate(dateInput) {
+  return new Date(dateInput).toLocaleDateString("en-KE", {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+}
+
+function getServiceLinks(post) {
+  const title = `${post.title} ${post.category}`.toLowerCase();
+  const links = [];
+  if (title.includes("motor") || title.includes("fleet")) {
+    links.push({ label: "Motor Insurance Advisory", href: "motor-insurance-mombasa.html" });
+  }
+  if (title.includes("claim")) {
+    links.push({ label: "How Claims Work", href: "how-claims-work.html" });
+  }
+  if (title.includes("wiba") || title.includes("liability") || title.includes("compliance")) {
+    links.push({ label: "Corporate Insurance Services", href: "corporate-insurance-services.html" });
+  }
+  if (!links.length) {
+    links.push({ label: "Insurance Solutions", href: "index.html#services" });
+  }
+  return links;
+}
+
+async function renderBlogList() {
+  const blogList = document.getElementById("blog-list");
+  if (!blogList) return;
+
+  const posts = await fetchPosts();
+  blogList.innerHTML = posts
+    .map(
+      (post) => `
+      <article>
+        <p class="eyebrow">${post.category}</p>
+        <h3>${post.title}</h3>
+        <p>${post.excerpt}</p>
+        <p><small>${formatDate(post.publishedAt)} · ${post.author}</small></p>
+        <a class="text-link" href="blog-post.html?slug=${encodeURIComponent(post.slug)}">Read article</a>
+      </article>
+    `
+    )
+    .join("");
+}
+
+async function renderBlogPost() {
+  const postTitle = document.getElementById("post-title");
+  if (!postTitle) return;
+
+  const slug = getQueryParam("slug");
+  const posts = await fetchPosts();
+  const post = posts.find((item) => item.slug === slug);
+
+  const postCategory = document.getElementById("post-category");
+  const postMeta = document.getElementById("post-meta");
+  const postContent = document.getElementById("post-content");
+
+  if (!post) {
+    postTitle.textContent = "Insight not found";
+    if (postMeta) postMeta.textContent = "Please return to the insights page and choose another article.";
+    if (postContent) postContent.innerHTML = '<p><a class="text-link" href="blog.html">Back to Insights</a></p>';
+    return;
+  }
+
+  document.title = `${post.title} | ADT Insurance Insights`;
+  if (postCategory) postCategory.textContent = post.category;
+  postTitle.textContent = post.title;
+  if (postMeta) postMeta.textContent = `${formatDate(post.publishedAt)} · ${post.author}`;
+  if (postContent) {
+    const relatedPosts = posts.filter((item) => item.slug !== post.slug).slice(0, 2);
+    const serviceLinks = getServiceLinks(post);
+    postContent.innerHTML = `
+      ${post.content.map((paragraph) => `<p>${paragraph}</p>`).join("")}
+      <h3>Related solutions</h3>
+      <ul>
+        ${serviceLinks.map((link) => `<li><a class="text-link" href="${link.href}">${link.label}</a></li>`).join("")}
+      </ul>
+      <h3>Continue reading</h3>
+      <ul>
+        ${relatedPosts
+    .map((item) => `<li><a class="text-link" href="blog-post.html?slug=${encodeURIComponent(item.slug)}">${item.title}</a></li>`)
+    .join("")}
+      </ul>
+      <p><a class="text-link" href="index.html#quote">Need tailored advisory? Request a quote.</a></p>
+    `;
+  }
+}
+
+renderBlogList();
+renderBlogPost();
