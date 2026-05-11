@@ -248,29 +248,45 @@ function normalizeFormData(formData) {
   return normalized;
 }
 
-function setQuoteStep(form, nextStep) {
-  const steps = form.querySelectorAll(".form-step");
-  steps.forEach((step) => {
-    const shouldActivate = step.getAttribute("data-step") === String(nextStep);
-    step.classList.toggle("is-active", shouldActivate);
-  });
-
-  document.querySelectorAll("[data-progress-step]").forEach((chip) => {
-    chip.classList.toggle("active", chip.getAttribute("data-progress-step") === String(nextStep));
-  });
-}
-
-function validateQuoteStepOne(form) {
-  const requiredFields = ["full-name", "business-type", "phone"];
-  for (const fieldName of requiredFields) {
-    const field = form.querySelector(`[name='${fieldName}']`);
-    if (!field) continue;
-    if (!field.checkValidity()) {
-      field.reportValidity();
-      return false;
-    }
+function openWhatsApp(number, message) {
+  const phone = String(number || "").replace(/\D/g, "");
+  if (!phone) return false;
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  const popup = window.open(url, "_blank", "noopener");
+  if (!popup) {
+    window.location.href = url;
   }
   return true;
+}
+
+function formatQuoteWhatsAppMessage(payload) {
+  return [
+    "Hello ADT Insurance, I have submitted a quick quote request.",
+    "",
+    "*QUOTE REQUEST DETAILS*",
+    `Full Name: ${payload["full-name"] || "-"}`,
+    `Customer Type: ${payload["business-type"] || "-"}`,
+    `Phone / WhatsApp: ${payload.phone || "-"}`,
+    `Cover Type: ${payload.product || "-"}`,
+    `Preferred Callback Time: ${payload["callback-time"] || "Not specified"}`,
+    "",
+    `Source: ${window.location.pathname}`
+  ].join("\n");
+}
+
+function formatClaimWhatsAppMessage(payload, attachmentNames) {
+  return [
+    "Hello ADT Claims Desk, I have submitted a claim request.",
+    "",
+    "*CLAIM REQUEST DETAILS*",
+    `Reg. No. / Insured Name: ${payload["policy-number"] || "-"}`,
+    `Incident Type: ${payload["incident-type"] || "-"}`,
+    `Incident Date: ${payload["incident-date"] || "-"}`,
+    `Contact Number: ${payload["claim-contact"] || "-"}`,
+    `Supporting Documents: ${attachmentNames || "None attached"}`,
+    "",
+    `Source: ${window.location.pathname}`
+  ].join("\n");
 }
 
 function initQuoteTemplateChips() {
@@ -292,36 +308,13 @@ function initQuoteTemplateChips() {
   });
 }
 
-function initQuoteSteps(form) {
-  if (!form) return;
-  setQuoteStep(form, 1);
-
-  const nextBtn = form.querySelector(".step-next");
-  const backBtn = form.querySelector(".step-back");
-
-  if (nextBtn) {
-    nextBtn.addEventListener("click", () => {
-      if (!validateQuoteStepOne(form)) return;
-      setQuoteStep(form, 2);
-      trackLeadEvent("quote_step_continue", { step: 2 });
-    });
-  }
-
-  if (backBtn) {
-    backBtn.addEventListener("click", () => {
-      setQuoteStep(form, 1);
-      trackLeadEvent("quote_step_back", { step: 1 });
-    });
-  }
-}
-
 function initClaimAssistant() {
   const incidentType = document.getElementById("incident-type");
   const hint = document.getElementById("claim-docs-hint");
   if (!incidentType || !hint) return;
 
   const docHints = {
-    "Motor accident": "Recommended first documents: policy number, driver details, scene photos, police abstract reference.",
+    "Motor accident": "Recommended first details: reg. no. or insured name, driver details, scene photos, police abstract reference.",
     "Medical emergency": "Recommended first documents: member number, treatment notes, provider details, admission/visit date.",
     "Work injury (WIBA)": "Recommended first documents: incident report, employee details, witness notes, medical report.",
     "Fire or property damage": "Recommended first documents: incident report, photos/videos, stock/asset list, authority report where available.",
@@ -426,36 +419,44 @@ function handleClaimSubmit(form, statusElement, successMessage, eventName, endpo
     event.preventDefault();
     const button = form.querySelector("button[type='submit']");
     const defaultButtonText = button ? button.textContent : "";
-    if (button) button.textContent = "Submitting...";
+    if (button) button.textContent = "Opening WhatsApp...";
     if (statusElement) statusElement.textContent = "";
 
-    const payload = buildClaimPayload(form);
+    const formData = new FormData(form);
+    const payload = normalizeFormData(formData);
+    const attachmentNames = formData
+      .getAll("claim-documents")
+      .filter((file) => file instanceof File && file.size > 0)
+      .slice(0, 5)
+      .map((file) => file.name)
+      .join(", ");
 
-    try {
-      await submitLead(endpoint, payload);
+    const message = formatClaimWhatsAppMessage(payload, attachmentNames);
+    const opened = openWhatsApp("254785227772", message);
+
+    if (opened) {
       form.reset();
       if (statusElement) statusElement.textContent = successMessage;
-      showLeadModal("Claim request received. Our claims desk is preparing next-step guidance.");
+      showLeadModal("Claim request prepared and opened in WhatsApp. Please press send to submit it.");
       trackLeadEvent("generate_lead", {
         form_id: form.id || "unknown",
         lead_type: "claim",
-        method: "website_form"
+        method: "whatsapp_form"
       });
       trackLeadEvent(eventName, {
-        product: payload.get("incident-type") || "claim",
-        source: "website_form"
+        product: payload["incident-type"] || "claim",
+        source: "whatsapp_form"
       });
       if (typeof window.fbq === "function") {
         window.fbq("track", "Lead");
       }
-    } catch (_error) {
+    } else {
       if (statusElement) {
-        statusElement.textContent = "We could not submit right now. Please use WhatsApp support and we will assist immediately.";
+        statusElement.textContent = "We could not open WhatsApp. Please use the WhatsApp button on this page.";
       }
-      trackLeadEvent("lead_submit_error", { endpoint });
-    } finally {
-      if (button) button.textContent = defaultButtonText || "Submit";
+      trackLeadEvent("lead_submit_error", { channel: "whatsapp", endpoint });
     }
+    if (button) button.textContent = defaultButtonText || "Submit";
   });
 }
 
@@ -567,44 +568,41 @@ function handleLeadSubmit(form, statusElement, successMessage, eventName, endpoi
     trackLeadEvent("form_start", { form_id: form.id || "unknown" });
   });
 
-  form.addEventListener("submit", async (event) => {
+  form.addEventListener("submit", (event) => {
     event.preventDefault();
     const button = form.querySelector("button[type='submit']");
     const defaultButtonText = button ? button.textContent : "";
-    if (button) button.textContent = "Submitting...";
+    if (button) button.textContent = "Opening WhatsApp...";
     if (statusElement) statusElement.textContent = "";
 
     const formData = new FormData(form);
     const payload = normalizeFormData(formData);
-    payload.page = window.location.pathname;
-    payload.userAgent = navigator.userAgent;
-    payload.formId = form.id || "unknown";
+    const message = formatQuoteWhatsAppMessage(payload);
+    const opened = openWhatsApp("254711533245", message);
 
-    try {
-      await submitLead(endpoint, payload);
+    if (opened) {
       form.reset();
       if (statusElement) statusElement.textContent = successMessage;
-      showLeadModal(successMessage);
+      showLeadModal("Quote request prepared and opened in WhatsApp. Please press send to submit it.");
       trackLeadEvent("generate_lead", {
         form_id: form.id || "unknown",
-        lead_type: payload.product ? "quote" : "claim",
-        method: "website_form"
+        lead_type: "quote",
+        method: "whatsapp_form"
       });
       trackLeadEvent(eventName, {
-        product: payload.product || "claim",
-        source: "website_form"
+        product: payload.product || "quote",
+        source: "whatsapp_form"
       });
       if (typeof window.fbq === "function") {
         window.fbq("track", "Lead");
       }
-    } catch (error) {
+    } else {
       if (statusElement) {
-        statusElement.textContent = "We could not submit right now. Please use WhatsApp support and we will assist immediately.";
+        statusElement.textContent = "We could not open WhatsApp. Please use the WhatsApp button on this page.";
       }
-      trackLeadEvent("lead_submit_error", { endpoint });
-    } finally {
-      if (button) button.textContent = defaultButtonText || "Submit";
+      trackLeadEvent("lead_submit_error", { channel: "whatsapp", endpoint });
     }
+    if (button) button.textContent = defaultButtonText || "Submit";
   });
 }
 
@@ -613,7 +611,6 @@ initSessionReplay();
 initTurnstile(securityConfig.turnstileSiteKey);
 initHeroVariant();
 initQuoteTemplateChips();
-initQuoteSteps(quoteForm);
 initClaimAssistant();
 initDateDefaults();
 initLeadModal();
