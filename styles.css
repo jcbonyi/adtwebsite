@@ -236,6 +236,134 @@ body.has-mobile-bar {
   padding: clamp(56px, 8vw, 84px) 0;
 }
 
+.hero--video {
+  min-height: clamp(560px, 78vh, 760px);
+  display: flex;
+  align-items: center;
+  padding: clamp(72px, 10vw, 110px) 0;
+  background: var(--navy-900);
+}
+
+.hero--video::before {
+  display: none;
+}
+
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(15, 28, 58, 0.35) 0%, rgba(15, 28, 58, 0.72) 100%),
+    linear-gradient(90deg, rgba(15, 28, 58, 0.92) 0%, rgba(15, 28, 58, 0.62) 42%, rgba(15, 28, 58, 0.28) 100%);
+}
+
+.hero-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-video-toggle {
+  position: absolute;
+  right: clamp(16px, 3vw, 28px);
+  bottom: clamp(16px, 3vw, 28px);
+  z-index: 3;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(15, 28, 58, 0.72);
+  color: var(--white);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background-color var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
+}
+
+.hero-video-toggle:hover {
+  background: rgba(15, 28, 58, 0.88);
+  border-color: rgba(255, 255, 255, 0.65);
+}
+
+.hero--video .container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.hero--video .hero-copy .eyebrow,
+.hero--video .hero-slide .eyebrow {
+  color: rgba(139, 193, 73, 0.96);
+}
+
+.hero--video h1,
+.hero--video .hero-slide h1 {
+  color: var(--white);
+}
+
+.hero--video .subhead {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.hero--video .hero-segment {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+}
+
+.hero--video .hero-segment:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.hero--video .hero-meta {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.hero--video .hero-meta span {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.hero--video .btn-outline {
+  border-color: rgba(255, 255, 255, 0.45);
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.hero--video .btn-outline:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.hero--video .hero-slider-btn {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--white);
+}
+
+.hero--video .hero-slider-btn:hover {
+  border-color: rgba(255, 255, 255, 0.55);
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.hero--video .hero-slider-dot {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.hero--video .hero-card {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.28);
+}
+
 .hero::before {
   content: "";
   position: absolute;
@@ -322,16 +450,7 @@ body.has-mobile-bar {
 .hero-visual {
   display: grid;
   gap: 16px;
-  align-content: start;
-}
-
-.hero-visual-track {
-  position: relative;
-  border-radius: var(--radius);
-  overflow: hidden;
-  min-height: clamp(220px, 30vw, 300px);
-  box-shadow: var(--shadow-strong);
-  border: 1px solid rgba(255, 255, 255, 0.65);
+  align-content: center;
 }
 
 .hero-slide-media {
@@ -594,6 +713,7 @@ summary:focus-visible,
 .carousel-control:focus-visible,
 .chip-btn:focus-visible,
 .menu-toggle:focus-visible,
+.hero-video-toggle:focus-visible,
 .hero-segment:focus-visible,
 .hero-slider-btn:focus-visible,
 .hero-slider-dot:focus-visible {
@@ -1162,6 +1282,19 @@ summary:focus-visible,
   .partner-carousel-wrap {
     grid-template-columns: 1fr;
   }
+
+  .hero--video {
+    min-height: auto;
+    padding: 88px 0 72px;
+  }
+
+  .hero--video .hero-slides {
+    min-height: 200px;
+  }
+
+  .hero--video .hero-visual {
+    margin-top: 8px;
+  }
 }
 
 .claims-points p::before {
@@ -1687,6 +1820,10 @@ summary {
   .hero-grid {
     grid-template-columns: 1.2fr 0.8fr;
     align-items: center;
+  }
+
+  .hero--video .hero-slides {
+    min-height: clamp(200px, 22vw, 260px);
   }
 
   .trust-grid,

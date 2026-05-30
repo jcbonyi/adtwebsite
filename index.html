@@ -47,7 +47,14 @@
   </header>
 
   <main id="main-content">
-    <section class="hero">
+    <section class="hero hero--video">
+      <div class="hero-media" aria-hidden="true">
+        <video class="hero-video" id="hero-video" autoplay muted loop playsinline poster="assets/images/hero-biz.png">
+          <source src="assets/videos/adt-insurance-hero.mp4" type="video/mp4">
+        </video>
+        <div class="hero-overlay"></div>
+      </div>
+      <button type="button" class="hero-video-toggle" id="hero-video-toggle" aria-label="Pause video" aria-pressed="false">Pause</button>
       <div class="container hero-grid">
         <div class="hero-copy">
           <div class="hero-segments" role="tablist" aria-label="Coverage categories">
@@ -92,11 +99,6 @@
           </div>
         </div>
         <aside class="hero-visual">
-          <div class="hero-visual-track" aria-hidden="true">
-            <img class="hero-slide-media is-active" data-hero-slide="personal" src="assets/images/medical-cover.jpg" alt="Medical and personal insurance protection" loading="eager">
-            <img class="hero-slide-media" data-hero-slide="commercial" src="assets/images/advisory-meeting.jpg" alt="Corporate insurance advisory meeting" loading="lazy">
-            <img class="hero-slide-media" data-hero-slide="motor" src="assets/images/motor-insurance.jpg" alt="Motor insurance for private and commercial vehicles" loading="lazy">
-          </div>
           <div class="hero-card glass">
             <h2>Claims Support at a Glance</h2>
             <ul>

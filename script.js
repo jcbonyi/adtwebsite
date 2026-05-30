@@ -325,6 +325,34 @@ function initHeroSlider() {
   startAuto();
 }
 
+function initHeroVideo() {
+  const video = document.getElementById("hero-video");
+  const toggle = document.getElementById("hero-video-toggle");
+  if (!(video instanceof HTMLVideoElement) || !toggle) return;
+
+  if (prefersReducedMotion) {
+    video.removeAttribute("autoplay");
+    video.pause();
+    toggle.textContent = "Play";
+    toggle.setAttribute("aria-label", "Play video");
+    toggle.setAttribute("aria-pressed", "true");
+  }
+
+  toggle.addEventListener("click", () => {
+    if (video.paused) {
+      video.play();
+      toggle.textContent = "Pause";
+      toggle.setAttribute("aria-label", "Pause video");
+      toggle.setAttribute("aria-pressed", "false");
+    } else {
+      video.pause();
+      toggle.textContent = "Play";
+      toggle.setAttribute("aria-label", "Play video");
+      toggle.setAttribute("aria-pressed", "true");
+    }
+  });
+}
+
 function initTurnstile(siteKey) {
   if (!siteKey) return;
   const script = document.createElement("script");
@@ -963,6 +991,7 @@ initFloatingAssist();
 initTurnstile(securityConfig.turnstileSiteKey);
 initHeroVariant();
 initHeroSlider();
+initHeroVideo();
 initQuoteTemplateChips();
 initClaimAssistant();
 initDateDefaults();
