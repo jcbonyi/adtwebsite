@@ -391,9 +391,9 @@
           <h2>Get a Quick Quote</h2>
           <p>Share your details below. One of our advisors will respond within 10 minutes during business hours.</p>
           <p class="form-reassurance">Your details are used only to process your advisory request.</p>
-          <form class="lead-form" id="quote-form">
+          <form class="lead-form" id="quote-form" novalidate>
             <label for="full-name">Full Name</label>
-            <input id="full-name" name="full-name" minlength="2" maxlength="120" placeholder="e.g. Amina Hassan" required>
+            <input id="full-name" name="full-name" autocomplete="name" minlength="2" maxlength="120" placeholder="e.g. Amina Hassan" required>
             <label for="business-type">Business / Individual</label>
             <select id="business-type" name="business-type" required>
               <option value="">Select type</option>
@@ -402,7 +402,7 @@
               <option>Corporate (Above 10 employees)</option>
             </select>
             <label for="phone">Phone / WhatsApp</label>
-            <input id="phone" name="phone" type="tel" inputmode="tel" pattern="^\+?[0-9\s-]{8,20}$" placeholder="+254 7XX XXX XXX" required>
+            <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" pattern="^\+?[0-9\s-]{8,20}$" placeholder="+254 7XX XXX XXX" required>
             <p class="field-hint">Use a reachable number so your advisor can call or WhatsApp quickly.</p>
             <label for="product">Cover Type</label>
             <select id="product" name="product" required>
@@ -438,9 +438,9 @@
           <h2>Report a Claim</h2>
           <p>Our claims desk will contact you quickly and guide you on the next steps.</p>
           <p class="form-reassurance">Average first response: under 15 minutes during operating hours.</p>
-          <form class="lead-form" id="claim-form">
+          <form class="lead-form" id="claim-form" novalidate>
             <label for="policy-number">Reg. No. or Insured Name</label>
-            <input id="policy-number" name="policy-number" minlength="3" maxlength="80" placeholder="Reg. no. or insured name" required>
+            <input id="policy-number" name="policy-number" autocomplete="organization" minlength="3" maxlength="80" placeholder="Reg. no. or insured name" required>
             <label for="incident-type">Incident Type</label>
             <select id="incident-type" name="incident-type" required>
               <option value="">Select incident type</option>
@@ -460,10 +460,10 @@
             <label for="incident-date">Incident Date</label>
             <input id="incident-date" name="incident-date" type="date" required>
             <label for="claim-contact">Contact Number</label>
-            <input id="claim-contact" name="claim-contact" type="tel" inputmode="tel" pattern="^\+?[0-9\s-]{8,20}$" placeholder="+254 7XX XXX XXX" required>
+            <input id="claim-contact" name="claim-contact" type="tel" inputmode="tel" autocomplete="tel" pattern="^\+?[0-9\s-]{8,20}$" placeholder="+254 7XX XXX XXX" required>
             <label for="claim-documents">Upload Supporting Documents (Optional)</label>
             <input id="claim-documents" name="claim-documents" type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
-            <p class="field-hint">Attach photos, reports, or supporting files (up to 5 files).</p>
+            <p class="field-hint" id="claim-files-hint">Attach photos, reports, or supporting files (up to 5 files).</p>
             <div class="turnstile-slot" data-turnstile-form="claim"></div>
             <button class="btn btn-secondary" type="submit" data-track="form_claim_submit">Submit Claim Request</button>
           </form>
@@ -587,15 +587,12 @@
       <a href="https://wa.me/254785227772?text=Hello%20ADT%2C%20I%20need%20to%20report%20a%20claim." class="btn btn-secondary" target="_blank" rel="noopener" data-track="cta_whatsapp_chat_claim">Report a Claim</a>
     </div>
   </aside>
-  <div id="lead-success-modal" class="lead-modal" aria-hidden="true" role="dialog" aria-labelledby="lead-modal-title">
-    <div class="lead-modal-card">
-      <h3 id="lead-modal-title">Request Received</h3>
-      <p id="lead-modal-message">Our team will contact you shortly with next steps.</p>
-      <div class="chat-actions">
-        <a class="btn btn-primary" href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20just%20submitted%20a%20request." target="_blank" rel="noopener">Chat on WhatsApp</a>
-        <a class="btn btn-outline" href="#quote">Schedule Callback</a>
-      </div>
-      <button class="btn btn-outline lead-modal-close" type="button" id="lead-modal-close">Close</button>
+  <div id="lead-success-modal" class="lead-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="lead-modal-title">
+    <div class="lead-modal-card" tabindex="-1">
+      <h3 id="lead-modal-title">Ready on WhatsApp</h3>
+      <p id="lead-modal-message">Your details are prepared in WhatsApp. Review the message and tap send to complete your request.</p>
+      <button class="btn btn-primary lead-modal-close" type="button" id="lead-modal-close">Got it</button>
+      <p class="lead-modal-dismiss">Press Escape or click outside to close.</p>
     </div>
   </div>
 

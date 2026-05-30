@@ -31,6 +31,16 @@ html {
   scroll-behavior: smooth;
 }
 
+body.menu-open {
+  overflow: hidden;
+}
+
+section[id],
+article[id],
+footer[id] {
+  scroll-margin-top: 92px;
+}
+
 body {
   margin: 0;
   font-family: "Inter", sans-serif;
@@ -172,6 +182,11 @@ body.has-mobile-bar {
 .main-nav a:hover {
   border-bottom-color: var(--link-strong);
   color: var(--link-strong);
+}
+
+.main-nav a.is-active {
+  color: var(--link-strong);
+  border-bottom-color: var(--blue-600);
 }
 
 .menu-toggle {
@@ -317,6 +332,14 @@ summary:focus-visible,
   border: 1px solid var(--gray-300);
   color: var(--navy-900);
   background: rgba(255, 255, 255, 0.92);
+}
+
+.btn:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+  box-shadow: none;
 }
 
 .hero-meta {
@@ -803,8 +826,22 @@ summary:focus-visible,
 .form-status {
   min-height: 24px;
   margin: 10px 0 0;
-  color: var(--teal-500);
   font-weight: 600;
+}
+
+.form-status.is-success {
+  color: #2f7d32;
+}
+
+.form-status.is-error {
+  color: #b42318;
+}
+
+input.is-invalid,
+select.is-invalid,
+textarea.is-invalid {
+  border-color: rgba(180, 35, 24, 0.65);
+  box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.12);
 }
 
 .next-steps {
@@ -890,6 +927,11 @@ summary {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.breadcrumb span[aria-hidden="true"] {
+  opacity: 0.55;
 }
 
 .breadcrumb a {
@@ -900,6 +942,14 @@ summary {
 .page-hero p {
   max-width: 720px;
   color: var(--ink-muted);
+}
+
+.page-hero .hero-image {
+  margin: 18px 0;
+}
+
+.page-hero .btn {
+  margin-top: 8px;
 }
 
 .content-grid {
@@ -965,6 +1015,31 @@ summary {
   box-shadow: 0 16px 32px rgba(139, 193, 73, 0.42);
 }
 
+.back-to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 132px;
+  z-index: 17;
+  border: 1px solid rgba(21, 39, 80, 0.12);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--navy-800);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 700;
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-base) var(--ease-standard), opacity var(--motion-fast) var(--ease-standard);
+}
+
+.back-to-top:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
+.back-to-top[hidden] {
+  display: none;
+}
+
 .chatbot-toggle {
   position: fixed;
   right: 16px;
@@ -977,6 +1052,7 @@ summary {
   padding: 10px 16px;
   font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 10px 24px rgba(12, 160, 208, 0.28);
 }
 
 .chatbot-panel {
@@ -1027,6 +1103,16 @@ summary {
   box-shadow: var(--shadow-strong);
   padding: 24px;
   text-align: center;
+}
+
+.lead-modal-card:focus {
+  outline: none;
+}
+
+.lead-modal-dismiss {
+  margin: 14px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
 }
 
 .lead-modal-card h3 {
@@ -1204,6 +1290,40 @@ summary {
 
   .mobile-action-bar {
     display: none;
+  }
+
+  .back-to-top {
+    bottom: 24px;
+  }
+
+  .whatsapp-float {
+    bottom: 24px;
+  }
+
+  .chatbot-toggle {
+    bottom: 82px;
+  }
+
+  .chatbot-panel {
+    bottom: 130px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .whatsapp-float {
+    bottom: 78px;
+  }
+
+  .chatbot-toggle {
+    bottom: 132px;
+  }
+
+  .chatbot-panel {
+    bottom: 180px;
+  }
+
+  .back-to-top {
+    bottom: 190px;
   }
 }
 

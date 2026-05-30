@@ -23,20 +23,25 @@ if (year) {
   year.textContent = String(new Date().getFullYear());
 }
 
-if (mobileActionBar) {
-  document.body.classList.add("has-mobile-bar");
+const HEADER_OFFSET = 88;
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function setMobileMenuOpen(isOpen) {
+  if (!menuToggle || !mainNav) return;
+  mainNav.classList.toggle("open", isOpen);
+  menuToggle.setAttribute("aria-expanded", String(isOpen));
+  menuToggle.textContent = isOpen ? "Close" : "Menu";
+  document.body.classList.toggle("menu-open", isOpen);
 }
 
 if (menuToggle && mainNav) {
   menuToggle.addEventListener("click", () => {
-    const isOpen = mainNav.classList.toggle("open");
-    menuToggle.setAttribute("aria-expanded", String(isOpen));
+    setMobileMenuOpen(!mainNav.classList.contains("open"));
   });
 
   mainNav.querySelectorAll("a").forEach((link) => {
     link.addEventListener("click", () => {
-      mainNav.classList.remove("open");
-      menuToggle.setAttribute("aria-expanded", "false");
+      setMobileMenuOpen(false);
     });
   });
 }
@@ -46,20 +51,27 @@ document.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
   if (mainNav.classList.contains("open") && !mainNav.contains(target) && !menuToggle.contains(target)) {
-    mainNav.classList.remove("open");
-    menuToggle.setAttribute("aria-expanded", "false");
+    setMobileMenuOpen(false);
   }
 });
 
+function closeLeadModal() {
+  if (!leadModal) return;
+  leadModal.classList.remove("open");
+  leadModal.setAttribute("aria-hidden", "true");
+}
+
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
-  if (mainNav && menuToggle && mainNav.classList.contains("open")) {
-    mainNav.classList.remove("open");
-    menuToggle.setAttribute("aria-expanded", "false");
+  if (mainNav && mainNav.classList.contains("open")) {
+    setMobileMenuOpen(false);
   }
   if (chatbotPanel && chatbotPanel.classList.contains("open")) {
     chatbotPanel.classList.remove("open");
     chatbotPanel.setAttribute("aria-hidden", "true");
+  }
+  if (leadModal && leadModal.classList.contains("open")) {
+    closeLeadModal();
   }
 });
 
@@ -213,12 +225,12 @@ function trackLeadEvent(eventName, payload = {}) {
   }
 }
 
-document.querySelectorAll("[data-track]").forEach((el) => {
-  el.addEventListener("click", () => {
-    const label = el.getAttribute("data-track") || "unknown";
-    const eventName = label.includes("whatsapp") ? "whatsapp_click" : "cta_click";
-    trackLeadEvent(eventName, { label });
-  });
+document.addEventListener("click", (event) => {
+  const target = event.target instanceof Element ? event.target.closest("[data-track]") : null;
+  if (!target) return;
+  const label = target.getAttribute("data-track") || "unknown";
+  const eventName = label.includes("whatsapp") ? "whatsapp_click" : "cta_click";
+  trackLeadEvent(eventName, { label });
 });
 
 document.querySelectorAll("a[download]").forEach((el) => {
@@ -330,6 +342,7 @@ function initClaimAssistant() {
 function initDateDefaults() {
   const callbackField = document.getElementById("callback-time");
   const statusCallbackField = document.getElementById("status-callback-time");
+  const incidentDateField = document.getElementById("incident-date");
   const setMinDateTime = (field) => {
     if (!field) return;
     const now = new Date();
@@ -338,6 +351,25 @@ function initDateDefaults() {
   };
   setMinDateTime(callbackField);
   setMinDateTime(statusCallbackField);
+  if (incidentDateField) {
+    incidentDateField.max = new Date().toISOString().slice(0, 10);
+  }
+}
+
+function setFormStatus(statusElement, message, type = "success") {
+  if (!statusElement) return;
+  statusElement.textContent = message;
+  statusElement.classList.remove("is-success", "is-error");
+  if (message) {
+    statusElement.classList.add(type === "error" ? "is-error" : "is-success");
+  }
+}
+
+function setSubmitBusy(button, isBusy, busyLabel, idleLabel) {
+  if (!button) return;
+  button.disabled = isBusy;
+  button.setAttribute("aria-busy", String(isBusy));
+  button.textContent = isBusy ? busyLabel : idleLabel;
 }
 
 function showLeadModal(message) {
@@ -347,17 +379,184 @@ function showLeadModal(message) {
   }
   leadModal.classList.add("open");
   leadModal.setAttribute("aria-hidden", "false");
+  const focusTarget = leadModalClose || leadModal.querySelector(".lead-modal-card");
+  if (focusTarget instanceof HTMLElement) {
+    focusTarget.focus();
+  }
 }
 
 function initLeadModal() {
-  if (!leadModal || !leadModalClose) return;
-  const closeModal = () => {
-    leadModal.classList.remove("open");
-    leadModal.setAttribute("aria-hidden", "true");
-  };
-  leadModalClose.addEventListener("click", closeModal);
+  if (!leadModal) return;
+  if (leadModalClose) {
+    leadModalClose.addEventListener("click", closeLeadModal);
+  }
   leadModal.addEventListener("click", (event) => {
-    if (event.target === leadModal) closeModal();
+    if (event.target === leadModal) closeLeadModal();
+  });
+}
+
+function initSmoothAnchors() {
+  const scrollToHash = (hash, behavior = prefersReducedMotion ? "auto" : "smooth") => {
+    if (!hash || hash === "#") return;
+    const target = document.querySelector(hash);
+    if (!target) return;
+    const top = target.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
+    window.scrollTo({ top: Math.max(top, 0), behavior });
+  };
+
+  document.querySelectorAll('a[href*="#"]').forEach((link) => {
+    link.addEventListener("click", (event) => {
+      const href = link.getAttribute("href");
+      if (!href || !href.includes("#")) return;
+      const url = new URL(href, window.location.href);
+      if (url.pathname !== window.location.pathname) return;
+      const hash = url.hash;
+      if (!hash || hash === "#") return;
+      const target = document.querySelector(hash);
+      if (!target) return;
+      event.preventDefault();
+      scrollToHash(hash);
+      history.pushState(null, "", hash);
+    });
+  });
+
+  if (window.location.hash) {
+    window.setTimeout(() => scrollToHash(window.location.hash), 120);
+  }
+}
+
+function initScrollSpy() {
+  if (!mainNav) return;
+  const navLinks = Array.from(mainNav.querySelectorAll('a[href*="#"]')).filter((link) => {
+    const href = link.getAttribute("href") || "";
+    return href.startsWith("#") || href.includes(`${window.location.pathname}#`) || href.includes("index.html#");
+  });
+  if (!navLinks.length) return;
+
+  const sectionIds = navLinks
+    .map((link) => {
+      const href = link.getAttribute("href") || "";
+      const hashIndex = href.indexOf("#");
+      return hashIndex >= 0 ? href.slice(hashIndex) : "";
+    })
+    .filter(Boolean);
+  const sections = sectionIds
+    .map((id) => document.querySelector(id))
+    .filter((section) => section instanceof HTMLElement);
+  if (!sections.length) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      const activeId = `#${visible.target.id}`;
+      navLinks.forEach((link) => {
+        const href = link.getAttribute("href") || "";
+        link.classList.toggle("is-active", href === activeId || href.endsWith(activeId));
+      });
+    },
+    { rootMargin: "-35% 0px -55% 0px", threshold: [0.15, 0.35, 0.6] }
+  );
+
+  sections.forEach((section) => observer.observe(section));
+}
+
+function initBackToTop() {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "back-to-top";
+  button.setAttribute("aria-label", "Back to top");
+  button.textContent = "Top";
+  button.hidden = true;
+  document.body.appendChild(button);
+
+  const toggleVisibility = () => {
+    button.hidden = window.scrollY < 480;
+  };
+  toggleVisibility();
+  window.addEventListener("scroll", toggleVisibility, { passive: true });
+  button.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+  });
+}
+
+function initFloatingAssist() {
+  const isHome = /(?:^|\/)index\.html?$/.test(window.location.pathname) || window.location.pathname.endsWith("/");
+
+  if (!document.querySelector(".whatsapp-float")) {
+    const whatsappLink = document.createElement("a");
+    whatsappLink.className = "whatsapp-float";
+    whatsappLink.href = "https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20help%20with%20insurance.";
+    whatsappLink.target = "_blank";
+    whatsappLink.rel = "noopener";
+    whatsappLink.setAttribute("aria-label", "Chat on WhatsApp");
+    whatsappLink.setAttribute("data-track", "cta_whatsapp_float");
+    whatsappLink.textContent = "WhatsApp";
+    document.body.appendChild(whatsappLink);
+  }
+
+  if (!document.querySelector(".mobile-action-bar")) {
+    const bar = document.createElement("nav");
+    bar.className = "mobile-action-bar";
+    bar.setAttribute("aria-label", "Quick actions");
+    bar.innerHTML = `
+      <a href="${isHome ? "#quote" : "index.html#quote"}" data-track="mobile_quote">Quote</a>
+      <a href="${isHome ? "#claims-form" : "index.html#claims-form"}" data-track="mobile_claim">Claim</a>
+      <a href="tel:+254711533245" data-track="mobile_call">Call</a>
+      <a href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20help%20with%20insurance." target="_blank" rel="noopener" data-track="mobile_whatsapp">WhatsApp</a>
+    `;
+    document.body.appendChild(bar);
+  }
+
+  if (document.querySelector(".mobile-action-bar")) {
+    document.body.classList.add("has-mobile-bar");
+  }
+}
+
+function initFormEnhancements() {
+  const claimDocuments = document.getElementById("claim-documents");
+  const claimFilesHint = document.getElementById("claim-files-hint");
+  if (claimDocuments && claimFilesHint) {
+    claimDocuments.addEventListener("change", () => {
+      const files = Array.from(claimDocuments.files || []).slice(0, 5);
+      if (!files.length) {
+        claimFilesHint.textContent = "Attach photos, reports, or supporting files (up to 5 files).";
+        return;
+      }
+      if (files.length > 5) {
+        claimFilesHint.textContent = "Only the first 5 files will be listed in WhatsApp. Attach the rest after sending.";
+        return;
+      }
+      claimFilesHint.textContent = `${files.length} file${files.length === 1 ? "" : "s"} selected: ${files.map((file) => file.name).join(", ")}`;
+    });
+  }
+
+  document.querySelectorAll(".lead-form").forEach((form) => {
+    form.addEventListener("invalid", (event) => {
+      const field = event.target;
+      if (!(field instanceof HTMLElement)) return;
+      field.classList.add("is-invalid");
+    }, true);
+
+    form.querySelectorAll("input, select, textarea").forEach((field) => {
+      field.addEventListener("input", () => field.classList.remove("is-invalid"));
+      field.addEventListener("change", () => field.classList.remove("is-invalid"));
+    });
+  });
+}
+
+function initSingleFaqOpen() {
+  const items = document.querySelectorAll(".faq details");
+  if (items.length < 2) return;
+  items.forEach((item) => {
+    item.addEventListener("toggle", () => {
+      if (!item.open) return;
+      items.forEach((other) => {
+        if (other !== item) other.open = false;
+      });
+    });
   });
 }
 
@@ -417,10 +616,15 @@ function handleClaimSubmit(form, statusElement, successMessage, eventName, endpo
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
     const button = form.querySelector("button[type='submit']");
-    const defaultButtonText = button ? button.textContent : "";
-    if (button) button.textContent = "Opening WhatsApp...";
-    if (statusElement) statusElement.textContent = "";
+    const defaultButtonText = button ? button.textContent : "Submit Claim Request";
+    setSubmitBusy(button, true, "Opening WhatsApp...", defaultButtonText);
+    setFormStatus(statusElement, "");
 
     const formData = new FormData(form);
     const payload = normalizeFormData(formData);
@@ -436,8 +640,12 @@ function handleClaimSubmit(form, statusElement, successMessage, eventName, endpo
 
     if (opened) {
       form.reset();
-      if (statusElement) statusElement.textContent = successMessage;
-      showLeadModal("Claim request prepared and opened in WhatsApp. Please press send to submit it.");
+      const claimFilesHint = document.getElementById("claim-files-hint");
+      if (claimFilesHint) {
+        claimFilesHint.textContent = "Attach photos, reports, or supporting files (up to 5 files).";
+      }
+      setFormStatus(statusElement, "WhatsApp opened with your claim details. Tap send to complete your request.");
+      showLeadModal("Your claim details are ready in WhatsApp. Review the message and tap send to submit.");
       trackLeadEvent("generate_lead", {
         form_id: form.id || "unknown",
         lead_type: "claim",
@@ -451,12 +659,10 @@ function handleClaimSubmit(form, statusElement, successMessage, eventName, endpo
         window.fbq("track", "Lead");
       }
     } else {
-      if (statusElement) {
-        statusElement.textContent = "We could not open WhatsApp. Please use the WhatsApp button on this page.";
-      }
+      setFormStatus(statusElement, "We could not open WhatsApp. Please use the WhatsApp button on this page.", "error");
       trackLeadEvent("lead_submit_error", { channel: "whatsapp", endpoint });
     }
-    if (button) button.textContent = defaultButtonText || "Submit";
+    setSubmitBusy(button, false, "Opening WhatsApp...", defaultButtonText);
   });
 }
 
@@ -508,7 +714,7 @@ function initPartnerCarousel() {
   };
 
   const tick = () => {
-    if (!autoScrollPaused && !pointerActive) {
+    if (!prefersReducedMotion && !autoScrollPaused && !pointerActive) {
       viewport.scrollLeft += 0.35;
       syncLoopPosition();
     }
@@ -570,10 +776,15 @@ function handleLeadSubmit(form, statusElement, successMessage, eventName, endpoi
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
     const button = form.querySelector("button[type='submit']");
-    const defaultButtonText = button ? button.textContent : "";
-    if (button) button.textContent = "Opening WhatsApp...";
-    if (statusElement) statusElement.textContent = "";
+    const defaultButtonText = button ? button.textContent : "Request Quote";
+    setSubmitBusy(button, true, "Opening WhatsApp...", defaultButtonText);
+    setFormStatus(statusElement, "");
 
     const formData = new FormData(form);
     const payload = normalizeFormData(formData);
@@ -582,8 +793,8 @@ function handleLeadSubmit(form, statusElement, successMessage, eventName, endpoi
 
     if (opened) {
       form.reset();
-      if (statusElement) statusElement.textContent = successMessage;
-      showLeadModal("Quote request prepared and opened in WhatsApp. Please press send to submit it.");
+      setFormStatus(statusElement, "WhatsApp opened with your quote details. Tap send to complete your request.");
+      showLeadModal("Your quote details are ready in WhatsApp. Review the message and tap send to submit.");
       trackLeadEvent("generate_lead", {
         form_id: form.id || "unknown",
         lead_type: "quote",
@@ -597,24 +808,28 @@ function handleLeadSubmit(form, statusElement, successMessage, eventName, endpoi
         window.fbq("track", "Lead");
       }
     } else {
-      if (statusElement) {
-        statusElement.textContent = "We could not open WhatsApp. Please use the WhatsApp button on this page.";
-      }
+      setFormStatus(statusElement, "We could not open WhatsApp. Please use the WhatsApp button on this page.", "error");
       trackLeadEvent("lead_submit_error", { channel: "whatsapp", endpoint });
     }
-    if (button) button.textContent = defaultButtonText || "Submit";
+    setSubmitBusy(button, false, "Opening WhatsApp...", defaultButtonText);
   });
 }
 
 initAnalytics();
 initSessionReplay();
+initFloatingAssist();
 initTurnstile(securityConfig.turnstileSiteKey);
 initHeroVariant();
 initQuoteTemplateChips();
 initClaimAssistant();
 initDateDefaults();
+initFormEnhancements();
 initLeadModal();
 initIntentMemory();
+initSmoothAnchors();
+initScrollSpy();
+initBackToTop();
+initSingleFaqOpen();
 initPartnerCarousel();
 
 handleLeadSubmit(
