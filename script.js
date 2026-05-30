@@ -134,6 +134,8 @@ function initSessionReplay() {
 }
 
 function initHeroVariant() {
+  if (document.querySelector(".hero-slides")) return;
+
   const heroEyebrow = document.getElementById("hero-eyebrow");
   const heroTitle = document.getElementById("hero-title");
   const heroSubhead = document.getElementById("hero-subhead");
@@ -198,6 +200,129 @@ function initHeroVariant() {
   ctaTertiary.setAttribute("data-track", selected.tertiary.track);
 
   trackLeadEvent("hero_variant_applied", { variant: activeVariant });
+}
+
+function initHeroSlider() {
+  const slideOrder = ["personal", "commercial", "motor"];
+  const slideCtas = {
+    personal: { href: "index.html?product=Medical%20Insurance#quote", label: "Get a Quote" },
+    commercial: { href: "index.html?product=Business%20Insurance#quote", label: "Request Advisory" },
+    motor: { href: "motor-insurance-mombasa.html", label: "Get Motor Quote" }
+  };
+
+  const tabs = Array.from(document.querySelectorAll("[data-hero-tab]")).filter((el) => el.classList.contains("hero-segment"));
+  const dots = Array.from(document.querySelectorAll(".hero-slider-dot"));
+  const textSlides = Array.from(document.querySelectorAll(".hero-slide[data-hero-slide]"));
+  const mediaSlides = Array.from(document.querySelectorAll(".hero-slide-media[data-hero-slide]"));
+  const prevBtn = document.querySelector("[data-hero-prev]");
+  const nextBtn = document.querySelector("[data-hero-next]");
+  const primaryCta = document.getElementById("hero-cta-primary");
+  const heroSection = document.querySelector(".hero");
+
+  if (!tabs.length || !textSlides.length) return;
+
+  let activeIndex = 0;
+  let timerId = null;
+  let paused = false;
+
+  const setSlide = (index) => {
+    activeIndex = (index + slideOrder.length) % slideOrder.length;
+    const slideKey = slideOrder[activeIndex];
+
+    tabs.forEach((tab) => {
+      const isActive = tab.getAttribute("data-hero-tab") === slideKey;
+      tab.classList.toggle("is-active", isActive);
+      tab.setAttribute("aria-selected", String(isActive));
+    });
+
+    dots.forEach((dot) => {
+      const isActive = dot.getAttribute("data-hero-tab") === slideKey;
+      dot.classList.toggle("is-active", isActive);
+      if (isActive) {
+        dot.setAttribute("aria-current", "true");
+      } else {
+        dot.removeAttribute("aria-current");
+      }
+    });
+
+    textSlides.forEach((slide) => {
+      const isActive = slide.getAttribute("data-hero-slide") === slideKey;
+      slide.classList.toggle("is-active", isActive);
+      slide.hidden = !isActive;
+    });
+
+    mediaSlides.forEach((media) => {
+      media.classList.toggle("is-active", media.getAttribute("data-hero-slide") === slideKey);
+    });
+
+    const cta = slideCtas[slideKey];
+    if (primaryCta && cta) {
+      primaryCta.href = cta.href;
+      primaryCta.textContent = cta.label;
+      primaryCta.setAttribute("data-track", `hero_slide_${slideKey}`);
+    }
+
+    trackLeadEvent("hero_slide_view", { slide: slideKey });
+  };
+
+  const nextSlide = () => setSlide(activeIndex + 1);
+  const prevSlide = () => setSlide(activeIndex - 1);
+
+  const stopAuto = () => {
+    if (timerId) {
+      window.clearInterval(timerId);
+      timerId = null;
+    }
+  };
+
+  const startAuto = () => {
+    stopAuto();
+    if (prefersReducedMotion || paused) return;
+    timerId = window.setInterval(nextSlide, 6500);
+  };
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const key = tab.getAttribute("data-hero-tab");
+      const index = slideOrder.indexOf(key || "");
+      if (index >= 0) setSlide(index);
+      startAuto();
+    });
+  });
+
+  dots.forEach((dot) => {
+    dot.addEventListener("click", () => {
+      const key = dot.getAttribute("data-hero-tab");
+      const index = slideOrder.indexOf(key || "");
+      if (index >= 0) setSlide(index);
+      startAuto();
+    });
+  });
+
+  if (prevBtn) prevBtn.addEventListener("click", () => { prevSlide(); startAuto(); });
+  if (nextBtn) nextBtn.addEventListener("click", () => { nextSlide(); startAuto(); });
+
+  if (heroSection) {
+    heroSection.addEventListener("mouseenter", () => {
+      paused = true;
+      stopAuto();
+    });
+    heroSection.addEventListener("mouseleave", () => {
+      paused = false;
+      startAuto();
+    });
+    heroSection.addEventListener("focusin", () => {
+      paused = true;
+      stopAuto();
+    });
+    heroSection.addEventListener("focusout", () => {
+      paused = false;
+      startAuto();
+    });
+  }
+
+  setSlide(0);
+  startAuto();
 }
 
 function initTurnstile(siteKey) {
@@ -560,6 +685,23 @@ function initSingleFaqOpen() {
   });
 }
 
+function initScrollReveal() {
+  if (prefersReducedMotion) return;
+  const targets = document.querySelectorAll(".section, .value-strip, .cta-band");
+  targets.forEach((el) => el.classList.add("reveal"));
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -30px 0px" }
+  );
+  targets.forEach((el) => observer.observe(el));
+}
+
 function initIntentMemory() {
   const intentKeys = ["claim", "quote", "whatsapp"];
   document.querySelectorAll("[data-track]").forEach((el) => {
@@ -820,6 +962,7 @@ initSessionReplay();
 initFloatingAssist();
 initTurnstile(securityConfig.turnstileSiteKey);
 initHeroVariant();
+initHeroSlider();
 initQuoteTemplateChips();
 initClaimAssistant();
 initDateDefaults();
@@ -830,6 +973,7 @@ initSmoothAnchors();
 initScrollSpy();
 initBackToTop();
 initSingleFaqOpen();
+initScrollReveal();
 initPartnerCarousel();
 
 handleLeadSubmit(

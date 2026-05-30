@@ -23,7 +23,7 @@
   <div class="top-bar">
     <div class="container top-bar-wrap">
       <p>Claims Desk: <a href="tel:+254785227772">+254 785 227 772</a></p>
-      <p>Supporting clients across Kenya and global markets</p>
+      <p>Kilindini Plaza, Moi Avenue, Mombasa · Kenya &amp; global markets</p>
     </div>
   </div>
   <header class="site-header">
@@ -42,7 +42,7 @@
         <a href="resources.html">Resources</a>
         <a href="#contact">Contact</a>
       </nav>
-      <a class="btn btn-outline nav-cta" href="#quote">Get a Quote</a>
+      <a class="btn btn-primary nav-cta" href="#quote">Get a Quote</a>
     </div>
   </header>
 
@@ -50,11 +50,30 @@
     <section class="hero">
       <div class="container hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow" id="hero-eyebrow">Claims-First Insurance Advisory</p>
-          <h1 id="hero-title">Insurance Advice You Can Trust. Claims Support You Can Feel.</h1>
-          <p class="subhead" id="hero-subhead">We help businesses, transport operators, SMEs, and families choose the right cover and get real support when claims happen.</p>
+          <div class="hero-segments" role="tablist" aria-label="Coverage categories">
+            <button type="button" class="hero-segment is-active" role="tab" id="hero-tab-personal" aria-selected="true" aria-controls="hero-panel-personal" data-hero-tab="personal">Personal</button>
+            <button type="button" class="hero-segment" role="tab" id="hero-tab-commercial" aria-selected="false" aria-controls="hero-panel-commercial" data-hero-tab="commercial">Commercial</button>
+            <button type="button" class="hero-segment" role="tab" id="hero-tab-motor" aria-selected="false" aria-controls="hero-panel-motor" data-hero-tab="motor">Motor</button>
+          </div>
+          <div class="hero-slides">
+            <article class="hero-slide is-active" id="hero-panel-personal" role="tabpanel" aria-labelledby="hero-tab-personal" data-hero-slide="personal">
+              <p class="eyebrow">Tailored protection for what you treasure</p>
+              <h1>Secure Your Life and Loved Ones</h1>
+              <p class="subhead">Flexible medical, travel, and personal cover with responsive advisory and claims support when you need it most.</p>
+            </article>
+            <article class="hero-slide" id="hero-panel-commercial" role="tabpanel" aria-labelledby="hero-tab-commercial" data-hero-slide="commercial" hidden>
+              <p class="eyebrow">Reliable cover for every enterprise</p>
+              <h1>Protect Your Business With Confidence</h1>
+              <p class="subhead">Integrated liability, asset, and workforce protection for SMEs and corporates operating across Kenya and global markets.</p>
+            </article>
+            <article class="hero-slide" id="hero-panel-motor" role="tabpanel" aria-labelledby="hero-tab-motor" data-hero-slide="motor" hidden>
+              <p class="eyebrow">Complete vehicle cover on and off the road</p>
+              <h1>Drive With Peace of Mind</h1>
+              <p class="subhead">Private, commercial, and fleet motor advisory with fast claims support built for real transport and logistics realities.</p>
+            </article>
+          </div>
           <div class="hero-actions">
-            <a class="btn btn-primary" id="hero-cta-primary" href="#quote" data-track="cta_quote_hero">Get a Quote</a>
+            <a class="btn btn-primary" id="hero-cta-primary" href="index.html?product=Medical%20Insurance#quote" data-track="hero_slide_primary">Get a Quote</a>
             <a class="btn btn-secondary" id="hero-cta-secondary" href="#claims-form" data-track="cta_claim_hero">Report a Claim</a>
             <a class="btn btn-outline" id="hero-cta-tertiary" href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20insurance%20support." target="_blank" rel="noopener" data-track="cta_whatsapp_hero">Talk on WhatsApp</a>
           </div>
@@ -62,17 +81,61 @@
             <span>Avg. response: <strong>Under 15 minutes</strong></span>
             <span>WhatsApp support: <strong>Rapid daily follow-up</strong></span>
           </div>
+          <div class="hero-slider-controls" aria-label="Hero slider controls">
+            <button class="hero-slider-btn" type="button" data-hero-prev aria-label="Previous slide">&#8249;</button>
+            <div class="hero-slider-dots" role="group" aria-label="Choose slide">
+              <button type="button" class="hero-slider-dot is-active" data-hero-tab="personal" aria-label="Personal slide" aria-current="true"></button>
+              <button type="button" class="hero-slider-dot" data-hero-tab="commercial" aria-label="Commercial slide"></button>
+              <button type="button" class="hero-slider-dot" data-hero-tab="motor" aria-label="Motor slide"></button>
+            </div>
+            <button class="hero-slider-btn" type="button" data-hero-next aria-label="Next slide">&#8250;</button>
+          </div>
         </div>
-        <aside class="hero-card glass">
-          <img class="hero-image" src="assets/images/hero-biz.png" alt="Business leadership team representing trusted advisory support" loading="eager">
-          <h2>Claims Support at a Glance</h2>
-          <ul>
-            <li><span>First response target</span><strong>Under 15 mins</strong></li>
-            <li><span>Support channel</span><strong>Phone + WhatsApp</strong></li>
-            <li><span>Status communication</span><strong>Clear follow-up updates</strong></li>
-          </ul>
-          <p class="small-text">Structured claims guidance from first report through resolution.</p>
+        <aside class="hero-visual">
+          <div class="hero-visual-track" aria-hidden="true">
+            <img class="hero-slide-media is-active" data-hero-slide="personal" src="assets/images/medical-cover.jpg" alt="Medical and personal insurance protection" loading="eager">
+            <img class="hero-slide-media" data-hero-slide="commercial" src="assets/images/advisory-meeting.jpg" alt="Corporate insurance advisory meeting" loading="lazy">
+            <img class="hero-slide-media" data-hero-slide="motor" src="assets/images/motor-insurance.jpg" alt="Motor insurance for private and commercial vehicles" loading="lazy">
+          </div>
+          <div class="hero-card glass">
+            <h2>Claims Support at a Glance</h2>
+            <ul>
+              <li><span>First response target</span><strong>Under 15 mins</strong></li>
+              <li><span>Support channel</span><strong>Phone + WhatsApp</strong></li>
+              <li><span>Status communication</span><strong>Clear follow-up updates</strong></li>
+            </ul>
+            <p class="small-text">Structured claims guidance from first report through resolution.</p>
+          </div>
         </aside>
+      </div>
+    </section>
+
+    <div class="brand-marquee" aria-hidden="true">
+      <div class="brand-marquee-track">
+        <span>ADT • REDEFINING STANDARDS •</span>
+        <span>SEAMLESS SERVICE • PROMPT ACTION • TAILORED COVER •</span>
+        <span>ADT • REDEFINING STANDARDS •</span>
+        <span>SEAMLESS SERVICE • PROMPT ACTION • TAILORED COVER •</span>
+      </div>
+    </div>
+
+    <section class="value-strip">
+      <div class="container value-grid">
+        <article class="value-card">
+          <span class="value-icon" aria-hidden="true"></span>
+          <h3>Seamless Service</h3>
+          <p>A smooth, consistent experience from onboarding through claims and renewals.</p>
+        </article>
+        <article class="value-card">
+          <span class="value-icon value-icon--action" aria-hidden="true"></span>
+          <h3>Prompt Action</h3>
+          <p>Fast quote response and claims follow-up because your time matters.</p>
+        </article>
+        <article class="value-card">
+          <span class="value-icon value-icon--cover" aria-hidden="true"></span>
+          <h3>Custom-Tailored Cover</h3>
+          <p>Transparent policies built around your risk profile, budget, and growth plans.</p>
+        </article>
       </div>
     </section>
 
@@ -199,7 +262,7 @@
       </div>
     </section>
 
-    <section id="claims" class="claims section">
+    <section id="claims" class="claims section claims-panel">
       <div class="container claims-grid">
         <div>
           <p class="eyebrow">Claims-First Promise</p>
@@ -234,13 +297,13 @@
           <p class="eyebrow">Why Choose ADT</p>
           <h2>Why clients stay with ADT</h2>
         </div>
-        <div class="why-grid">
-          <article><h3>Responsive service</h3><p>Quick callbacks and clear escalation when something is urgent.</p></article>
-          <article><h3>Personalized advisory</h3><p>Policies aligned to your risk, growth stage, and budget priorities.</p></article>
-          <article><h3>Well-organized operations</h3><p>Digital records, reminders, and structured follow-up you can rely on.</p></article>
-          <article><h3>Claims expertise</h3><p>Practical support that helps you recover faster when incidents happen.</p></article>
-          <article><h3>Compliance confidence</h3><p>Guidance on WIBA, liability, and regulatory insurance obligations.</p></article>
-          <article><h3>Regional and global insight</h3><p>Support for clients across markets, coordinated from our Mombasa headquarters.</p></article>
+        <div class="why-grid why-grid--numbered">
+          <article><span class="step-num">01</span><h3>Responsive service</h3><p>Quick callbacks and clear escalation when something is urgent.</p></article>
+          <article><span class="step-num">02</span><h3>Personalized advisory</h3><p>Policies aligned to your risk, growth stage, and budget priorities.</p></article>
+          <article><span class="step-num">03</span><h3>Well-organized operations</h3><p>Digital records, reminders, and structured follow-up you can rely on.</p></article>
+          <article><span class="step-num">04</span><h3>Claims expertise</h3><p>Practical support that helps you recover faster when incidents happen.</p></article>
+          <article><span class="step-num">05</span><h3>Compliance confidence</h3><p>Guidance on WIBA, liability, and regulatory insurance obligations.</p></article>
+          <article><span class="step-num">06</span><h3>Regional and global insight</h3><p>Support for clients across markets, coordinated from our Mombasa headquarters.</p></article>
         </div>
       </div>
     </section>
@@ -315,22 +378,27 @@
 
     <section class="section alt testimonials">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head section-head--center">
           <p class="eyebrow">Client Proof</p>
-          <h2>What clients say about working with us</h2>
+          <h2>What clients say about ADT</h2>
+          <p class="section-lead">Trusted by more than 3,800 satisfied clients across Kenya and global markets.</p>
         </div>
         <div class="testimonial-grid">
           <blockquote>
-            <p>"ADT has transformed how we handle fleet risk. Their claims team is fast, transparent, and easy to work with."</p>
-            <cite>Operations Manager, Logistics Company</cite>
+            <p>"Working with ADT has been a game-changer for our logistics operations. Their team is responsive, professional, and always a call away."</p>
+            <cite><strong>Jane Mwikali</strong><span>Operations Manager, Sifa Logistics Ltd</span></cite>
           </blockquote>
           <blockquote>
-            <p>"Their advisory is clear and practical. We got cover that fits our business and real support when incidents happen."</p>
-            <cite>SME Founder, Retail Sector</cite>
+            <p>"ADT helped me protect my store and inventory with a plan that fit my exact needs. Their service is personal, affordable, and always reliable."</p>
+            <cite><strong>Mercy Wambua</strong><span>Retail Business Owner</span></cite>
           </blockquote>
           <blockquote>
-            <p>"From quotation to policy support, ADT feels modern and reliable. They make complex insurance decisions simple."</p>
-            <cite>HR Lead, Professional Services Firm</cite>
+            <p>"From equipment to workers' cover, ADT has simplified our insurance process. They are proactive, detail-oriented, and quick when incidents arise."</p>
+            <cite><strong>Eng. Kevin Mwangi</strong><span>Site Manager, Construction Sector</span></cite>
+          </blockquote>
+          <blockquote>
+            <p>"We rely on ADT to cover our staff and property. Their tailored packages gave us peace of mind without breaking the budget."</p>
+            <cite><strong>David Otieno</strong><span>School Administrator</span></cite>
           </blockquote>
         </div>
       </div>
@@ -483,23 +551,45 @@
 
     <section class="section alt">
       <div class="container">
-        <div class="section-head">
+        <div class="section-head section-head--center">
           <p class="eyebrow">Your Journey</p>
-          <h2>Clear support flow after every request</h2>
+          <h2>How we work with you from first call to active cover</h2>
         </div>
-        <div class="insights-grid">
-          <article>
-            <h3>1. Request received</h3>
-            <p>Your quote, claim, or update request is logged immediately with a reference trail.</p>
+        <div class="insights-grid journey-grid">
+          <article class="journey-step">
+            <span class="journey-num">01</span>
+            <h3>Consultation</h3>
+            <p>We assess your needs and risks to recommend the most suitable coverage options.</p>
           </article>
-          <article>
-            <h3>2. Advisor assigned</h3>
-            <p>We route your request by product, urgency, and business type for faster handling.</p>
+          <article class="journey-step">
+            <span class="journey-num">02</span>
+            <h3>Quotation &amp; customization</h3>
+            <p>Receive a tailored quote and fine-tuned policy options that fit your profile.</p>
           </article>
-          <article>
-            <h3>3. Structured follow-up</h3>
-            <p>You get practical next steps, communication updates, and claim support until closure.</p>
+          <article class="journey-step">
+            <span class="journey-num">03</span>
+            <h3>Underwriting &amp; approval</h3>
+            <p>We process your application swiftly through expert underwriting and compliance checks.</p>
           </article>
+          <article class="journey-step">
+            <span class="journey-num">04</span>
+            <h3>Policy issuance &amp; support</h3>
+            <p>Your cover is activated, and our team stays available for assistance or claims.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <div class="container cta-band-inner">
+        <div>
+          <p class="eyebrow eyebrow--light">Protect What Matters Most</p>
+          <h2>Secure your future with reliable, affordable insurance solutions</h2>
+          <p>Get peace of mind knowing you are covered by experts who care — with fast response and claims support you can feel.</p>
+        </div>
+        <div class="cta-band-actions">
+          <a class="btn btn-primary" href="#quote">Get a Quote</a>
+          <a class="btn btn-outline btn-outline--light" href="tel:+254711533245">Call +254 711 533 245</a>
         </div>
       </div>
     </section>
