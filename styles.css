@@ -49,6 +49,13 @@ body {
   background: linear-gradient(180deg, #f9fbff 0%, #ffffff 22%);
   line-height: 1.6;
   text-rendering: optimizeLegibility;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#main-content {
+  flex: 1;
 }
 
 body.has-mobile-bar {
@@ -98,6 +105,14 @@ body.has-mobile-bar {
 .top-bar a {
   color: var(--white);
   text-decoration: none;
+  transition: color var(--motion-fast) var(--ease-standard), opacity var(--motion-fast) var(--ease-standard);
+}
+
+.top-bar a:hover,
+.top-bar a:focus-visible {
+  color: var(--blue-600);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .section {
@@ -565,9 +580,10 @@ body.has-mobile-bar {
   background: var(--white);
   border: 1px solid rgba(21, 39, 80, 0.08);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 18px;
   box-shadow: var(--shadow-soft);
   transition: transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-base) var(--ease-standard);
+  overflow: hidden;
 }
 
 .value-card:hover {
@@ -575,31 +591,18 @@ body.has-mobile-bar {
   box-shadow: var(--shadow-strong);
 }
 
-.value-icon {
-  display: block;
-  width: 42px;
-  height: 42px;
+.value-card:hover .value-image {
+  transform: scale(1.03);
+}
+
+.value-image {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
   border-radius: 12px;
-  margin-bottom: 12px;
-  background: linear-gradient(135deg, rgba(12, 160, 208, 0.18), rgba(12, 160, 208, 0.05));
-  border: 1px solid rgba(12, 160, 208, 0.22);
-  position: relative;
-}
-
-.value-icon::after {
-  content: "";
-  position: absolute;
-  inset: 11px;
-  border-radius: 4px;
-  background: linear-gradient(135deg, var(--blue-600), #13a8d8);
-}
-
-.value-icon--action::after {
-  background: linear-gradient(135deg, var(--teal-500), #7db13f);
-}
-
-.value-icon--cover::after {
-  background: linear-gradient(135deg, var(--gold-500), #d4b87a);
+  margin-bottom: 14px;
+  display: block;
+  transition: transform var(--motion-base) var(--ease-standard);
 }
 
 .value-card h3 {
@@ -1511,6 +1514,162 @@ summary {
   border-bottom: 1px solid rgba(21, 39, 80, 0.07);
 }
 
+.page-hero h1 {
+  font-size: clamp(1.75rem, 3.2vw, 2.45rem);
+  line-height: 1.15;
+  max-width: 18ch;
+  letter-spacing: -0.02em;
+}
+
+.page-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+  align-items: center;
+}
+
+.page-hero-actions .btn {
+  margin-top: 0;
+}
+
+.page-cta-bar {
+  padding: clamp(48px, 7vw, 72px) 0;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(139, 193, 73, 0.14), transparent 45%),
+    radial-gradient(circle at 15% 80%, rgba(12, 160, 208, 0.2), transparent 48%),
+    linear-gradient(135deg, #0e1b38 0%, #13264d 50%, #0f3f77 100%);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.page-cta-bar-inner {
+  display: grid;
+  gap: 22px;
+  align-items: center;
+}
+
+.page-cta-bar h2 {
+  color: var(--white);
+  max-width: 22ch;
+  margin: 8px 0 10px;
+}
+
+.page-cta-bar p {
+  color: rgba(255, 255, 255, 0.84);
+  max-width: 52ch;
+  margin: 0;
+}
+
+.page-cta-bar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.insight-loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--ink-muted);
+  padding: 24px 0;
+}
+
+.insight-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-top: 26px;
+  overflow: hidden;
+}
+
+.insight-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 22px;
+  right: 22px;
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, var(--blue-600), rgba(139, 193, 73, 0.65));
+}
+
+.insight-card h3 {
+  font-size: 1.15rem;
+  line-height: 1.35;
+  margin: 8px 0 10px;
+}
+
+.insight-card h3 a {
+  color: var(--navy-900);
+  text-decoration: none;
+  transition: color var(--motion-fast) var(--ease-standard);
+}
+
+.insight-card h3 a:hover {
+  color: var(--blue-600);
+}
+
+.insight-card-meta {
+  margin: 0 0 12px;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+}
+
+.insight-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.insight-card-link::after {
+  content: "→";
+  transition: transform var(--motion-fast) var(--ease-standard);
+}
+
+.insight-card:hover .insight-card-link::after {
+  transform: translateX(3px);
+}
+
+.article-prose,
+#post-content {
+  max-width: 72ch;
+}
+
+.article-prose h3,
+#post-content h3 {
+  margin-top: 28px;
+  margin-bottom: 10px;
+  font-size: 1.12rem;
+  color: var(--link-strong);
+}
+
+.article-prose p,
+#post-content p {
+  color: var(--ink-muted);
+}
+
+.article-prose ul,
+#post-content ul {
+  padding-left: 1.2rem;
+  color: var(--ink-muted);
+}
+
+.article-prose li + li,
+#post-content li + li {
+  margin-top: 6px;
+}
+
+.article-prose .btn,
+#post-content .btn {
+  margin-top: 12px;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .breadcrumb {
   margin: 14px 0 0;
   font-size: 0.88rem;
@@ -1554,7 +1713,21 @@ summary {
   border: 1px solid rgba(21, 39, 80, 0.08);
   box-shadow: var(--shadow-soft);
   padding: 22px;
+  position: relative;
+  padding-top: 26px;
+  overflow: hidden;
   transition: transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-base) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
+}
+
+.content-grid article::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 22px;
+  right: 22px;
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, var(--blue-600), rgba(139, 193, 73, 0.55));
 }
 
 .content-grid article:hover {
@@ -1797,6 +1970,8 @@ summary {
 @media (hover: hover) and (pointer: fine) {
   .service-card:hover,
   .insights-grid article:hover,
+  .insight-card:hover,
+  .content-grid article:hover,
   .why-grid article:hover,
   .testimonial-grid blockquote:hover,
   .trust-grid article:hover {
@@ -1808,6 +1983,8 @@ summary {
 @media (hover: none) {
   .service-card:hover,
   .insights-grid article:hover,
+  .insight-card:hover,
+  .content-grid article:hover,
   .why-grid article:hover,
   .testimonial-grid blockquote:hover,
   .trust-grid article:hover {
@@ -1843,6 +2020,10 @@ summary {
   }
 
   .cta-band-inner {
+    grid-template-columns: 1.2fr auto;
+  }
+
+  .page-cta-bar-inner {
     grid-template-columns: 1.2fr auto;
   }
 

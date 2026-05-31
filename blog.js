@@ -45,16 +45,17 @@ async function renderBlogList() {
   const blogList = document.getElementById("blog-list");
   if (!blogList) return;
 
+  blogList.innerHTML = '<p class="insight-loading">Loading insights…</p>';
   const posts = await fetchPosts();
   blogList.innerHTML = posts
     .map(
       (post) => `
-      <article>
+      <article class="insight-card">
         <p class="eyebrow">${post.category}</p>
-        <h3>${post.title}</h3>
+        <h3><a href="blog-post.html?slug=${encodeURIComponent(post.slug)}">${post.title}</a></h3>
         <p>${post.excerpt}</p>
-        <p><small>${formatDate(post.publishedAt)} · ${post.author}</small></p>
-        <a class="text-link" href="blog-post.html?slug=${encodeURIComponent(post.slug)}">Read article</a>
+        <p class="insight-card-meta">${formatDate(post.publishedAt)} · ${post.author}</p>
+        <a class="text-link insight-card-link" href="blog-post.html?slug=${encodeURIComponent(post.slug)}">Read article</a>
       </article>
     `
     )
@@ -99,8 +100,9 @@ async function renderBlogPost() {
     .map((item) => `<li><a class="text-link" href="blog-post.html?slug=${encodeURIComponent(item.slug)}">${item.title}</a></li>`)
     .join("")}
       </ul>
-      <p><a class="text-link" href="index.html#quote">Need tailored advisory? Request a quote.</a></p>
+      <p><a class="btn btn-primary" href="index.html#quote">Request a Quote</a></p>
     `;
+    postContent.classList.add("article-prose");
   }
 }
 

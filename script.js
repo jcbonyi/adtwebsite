@@ -715,7 +715,7 @@ function initSingleFaqOpen() {
 
 function initScrollReveal() {
   if (prefersReducedMotion) return;
-  const targets = document.querySelectorAll(".section, .value-strip, .cta-band");
+  const targets = document.querySelectorAll(".section, .value-strip, .cta-band, .page-cta-bar");
   targets.forEach((el) => el.classList.add("reveal"));
   const observer = new IntersectionObserver(
     (entries) => {
@@ -728,6 +728,130 @@ function initScrollReveal() {
     { threshold: 0.1, rootMargin: "0px 0px -30px 0px" }
   );
   targets.forEach((el) => observer.observe(el));
+}
+
+function initActiveNav() {
+  if (!mainNav) return;
+  const page = window.location.pathname.split("/").pop() || "index.html";
+  if (page === "index.html" || page === "") return;
+
+  mainNav.querySelectorAll("a").forEach((link) => {
+    const href = link.getAttribute("href") || "";
+    const linkPath = href.split("#")[0].split("?")[0];
+    const matchesPage = linkPath === page || linkPath.endsWith(`/${page}`);
+    const blogMatch = page === "blog-post.html" && href.includes("blog.html");
+    if (matchesPage || blogMatch) {
+      link.classList.add("is-active");
+    }
+  });
+}
+
+function initPageCtaBar() {
+  const footer = document.querySelector(".site-footer");
+  if (!footer || document.querySelector(".page-cta-bar") || document.querySelector(".cta-band")) return;
+  const page = window.location.pathname.split("/").pop() || "index.html";
+  if (page === "index.html" || page === "") return;
+
+  const section = document.createElement("section");
+  section.className = "page-cta-bar";
+  section.innerHTML = `
+    <div class="container page-cta-bar-inner">
+      <div>
+        <p class="eyebrow eyebrow--light">Need cover advice?</p>
+        <h2>Talk to ADT today</h2>
+        <p>Get a tailored quote or claims guidance with fast response during business hours.</p>
+      </div>
+      <div class="page-cta-bar-actions">
+        <a class="btn btn-primary" href="index.html#quote">Get a Quote</a>
+        <a class="btn btn-outline btn-outline--light" href="index.html#claims-form">Report a Claim</a>
+      </div>
+    </div>
+  `;
+  footer.parentNode?.insertBefore(section, footer);
+}
+
+function initGlobalChatbot() {
+  if (document.getElementById("chatbot-toggle")) return;
+
+  const toggle = document.createElement("button");
+  toggle.id = "chatbot-toggle";
+  toggle.className = "chatbot-toggle";
+  toggle.type = "button";
+  toggle.setAttribute("aria-label", "Open chat assistant");
+  toggle.textContent = "Chat";
+
+  const panel = document.createElement("aside");
+  panel.id = "chatbot-panel";
+  panel.className = "chatbot-panel";
+  panel.setAttribute("aria-hidden", "true");
+  panel.innerHTML = `
+    <h3>ADT Assistant</h3>
+    <p>I can help you with quotes, claims, and product guidance.</p>
+    <div class="chat-actions">
+      <a href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20a%20quote." class="btn btn-primary" target="_blank" rel="noopener" data-track="cta_whatsapp_chat_quote">Get a Quote</a>
+      <a href="https://wa.me/254785227772?text=Hello%20ADT%2C%20I%20need%20to%20report%20a%20claim." class="btn btn-secondary" target="_blank" rel="noopener" data-track="cta_whatsapp_chat_claim">Report a Claim</a>
+    </div>
+  `;
+
+  document.body.appendChild(toggle);
+  document.body.appendChild(panel);
+
+  toggle.addEventListener("click", () => {
+    const isOpen = panel.classList.toggle("open");
+    panel.setAttribute("aria-hidden", String(!isOpen));
+  });
+}
+
+function initFooterContactLinks() {
+  document.querySelectorAll(".site-footer p").forEach((node) => {
+    const text = (node.textContent || "").trim();
+    if (/^Business:\s*\+254 711 533 245/.test(text)) {
+      node.innerHTML = 'Business: <a class="footer-link" href="tel:+254711533245">+254 711 533 245</a>';
+    } else if (/^Claims Desk:\s*\+254 785 227 772/.test(text)) {
+      node.innerHTML = 'Claims Desk: <a class="footer-link" href="tel:+254785227772">+254 785 227 772</a>';
+    } else if (/^General:\s*info@adtinsurance/.test(text)) {
+      node.innerHTML = 'General: <a class="footer-link" href="mailto:info@adtinsurance.co.ke">info@adtinsurance.co.ke</a>';
+    } else if (/^Claims:\s*communications@adtinsurance/.test(text)) {
+      node.innerHTML = 'Claims: <a class="footer-link" href="mailto:communications@adtinsurance.co.ke">communications@adtinsurance.co.ke</a>';
+    }
+  });
+}
+
+function initPageHeroActions() {
+  document.querySelectorAll(".page-hero .container").forEach((container) => {
+    if (container.querySelector(".page-hero-actions")) return;
+
+    const wrap = document.createElement("div");
+    wrap.className = "page-hero-actions";
+
+    let primary = container.querySelector(".btn-primary");
+    if (primary) {
+      primary.parentNode?.insertBefore(wrap, primary);
+      wrap.appendChild(primary);
+    } else {
+      primary = document.createElement("a");
+      primary.className = "btn btn-primary";
+      primary.href = "index.html#quote";
+      primary.textContent = "Get a Quote";
+      container.appendChild(wrap);
+      wrap.appendChild(primary);
+    }
+
+    const claim = document.createElement("a");
+    claim.className = "btn btn-outline";
+    claim.href = "index.html#claims-form";
+    claim.textContent = "Report a Claim";
+    wrap.appendChild(claim);
+
+    const whatsapp = document.createElement("a");
+    whatsapp.className = "btn btn-outline";
+    whatsapp.href = "https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20insurance%20support.";
+    whatsapp.target = "_blank";
+    whatsapp.rel = "noopener";
+    whatsapp.textContent = "WhatsApp Us";
+    whatsapp.setAttribute("data-track", "cta_whatsapp_page_hero");
+    wrap.appendChild(whatsapp);
+  });
 }
 
 function initIntentMemory() {
@@ -989,6 +1113,11 @@ initAnalytics();
 initSessionReplay();
 initFloatingAssist();
 initTurnstile(securityConfig.turnstileSiteKey);
+initGlobalChatbot();
+initActiveNav();
+initPageCtaBar();
+initPageHeroActions();
+initFooterContactLinks();
 initHeroVariant();
 initHeroSlider();
 initHeroVideo();
