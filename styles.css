@@ -1315,8 +1315,8 @@ summary:focus-visible,
   scrollbar-width: none;
   -ms-overflow-style: none;
   cursor: grab;
-  scroll-snap-type: x proximity;
-  scroll-padding-inline: 6px;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
   padding-block: 6px;
 }
 
@@ -1326,7 +1326,6 @@ summary:focus-visible,
 
 .partner-carousel.dragging {
   cursor: grabbing;
-  scroll-snap-type: none;
 }
 
 .partner-track {
@@ -1348,7 +1347,6 @@ summary:focus-visible,
   border-radius: 14px;
   padding: 14px 18px;
   box-shadow: 0 10px 24px rgba(15, 28, 58, 0.07);
-  scroll-snap-align: start;
   transition: transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-base) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
 }
 

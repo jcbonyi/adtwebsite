@@ -963,30 +963,60 @@ function handleClaimSubmit(form, statusElement, successMessage, eventName, endpo
 function initPartnerCarousel() {
   const viewport = document.querySelector("[data-carousel-viewport]");
   const track = document.querySelector("[data-carousel-track]");
-  if (!viewport || !track || track.getAttribute("data-cloned") === "true") return;
-  const cards = Array.from(track.children);
-  cards.forEach((card) => {
+  if (!viewport || !track || track.dataset.cloned === "true") return;
+
+  Array.from(track.children).forEach((card) => {
     const clone = card.cloneNode(true);
     clone.setAttribute("aria-hidden", "true");
     track.appendChild(clone);
   });
-  track.setAttribute("data-cloned", "true");
+  track.dataset.cloned = "true";
 
   let autoScrollPaused = false;
   let pointerActive = false;
   let pointerStartX = 0;
   let startScrollLeft = 0;
-  const sampleCard = track.querySelector(".partner-card");
-  const cardGap = 16;
-  const scrollStep = sampleCard ? sampleCard.offsetWidth + cardGap : 212;
-  const halfTrackWidth = track.scrollWidth / 2;
+  let resumeAutoAt = 0;
+
+  const getLoopWidth = () => track.scrollWidth / 2;
+
+  const getScrollStep = () => {
+    const card = track.querySelector(".partner-card");
+    return card ? card.offsetWidth + 16 : 212;
+  };
+
+  const wrapForward = () => {
+    const loopWidth = getLoopWidth();
+    if (loopWidth > 0 && viewport.scrollLeft >= loopWidth) {
+      viewport.scrollLeft -= loopWidth;
+    }
+  };
+
+  const pauseAuto = (ms = 700) => {
+    autoScrollPaused = true;
+    resumeAutoAt = Date.now() + ms;
+  };
+
+  const stepCarousel = (direction) => {
+    const step = getScrollStep();
+    const loopWidth = getLoopWidth();
+    pauseAuto(900);
+
+    if (direction < 0 && viewport.scrollLeft <= step) {
+      viewport.scrollLeft = loopWidth - step;
+      return;
+    }
+
+    viewport.scrollBy({
+      left: direction * step,
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+
+    window.setTimeout(wrapForward, prefersReducedMotion ? 0 : 450);
+  };
 
   const prevBtn = document.querySelector("[data-carousel-prev]");
   const nextBtn = document.querySelector("[data-carousel-next]");
-
-  const stepCarousel = (direction) => {
-    viewport.scrollBy({ left: direction * scrollStep, behavior: "smooth" });
-  };
 
   if (prevBtn) {
     prevBtn.addEventListener("click", () => {
@@ -994,6 +1024,7 @@ function initPartnerCarousel() {
       trackLeadEvent("carousel_nav_click", { direction: "prev" });
     });
   }
+
   if (nextBtn) {
     nextBtn.addEventListener("click", () => {
       stepCarousel(1);
@@ -1001,35 +1032,35 @@ function initPartnerCarousel() {
     });
   }
 
-  const syncLoopPosition = () => {
-    if (viewport.scrollLeft >= halfTrackWidth) {
-      viewport.scrollLeft -= halfTrackWidth;
-    } else if (viewport.scrollLeft <= 0) {
-      viewport.scrollLeft += halfTrackWidth;
-    }
-  };
-
   const tick = () => {
-    if (!prefersReducedMotion && !autoScrollPaused && !pointerActive) {
-      viewport.scrollLeft += 0.35;
-      syncLoopPosition();
+    if (Date.now() >= resumeAutoAt) {
+      autoScrollPaused = false;
     }
+
+    if (!prefersReducedMotion && !autoScrollPaused && !pointerActive) {
+      viewport.scrollLeft += 0.45;
+      wrapForward();
+    }
+
     requestAnimationFrame(tick);
   };
-  requestAnimationFrame(tick);
 
-  viewport.addEventListener("scroll", syncLoopPosition, { passive: true });
   viewport.addEventListener("mouseenter", () => {
     autoScrollPaused = true;
   });
+
   viewport.addEventListener("mouseleave", () => {
     autoScrollPaused = false;
+    resumeAutoAt = 0;
   });
+
   viewport.addEventListener("focusin", () => {
     autoScrollPaused = true;
   });
+
   viewport.addEventListener("focusout", () => {
     autoScrollPaused = false;
+    resumeAutoAt = 0;
   });
 
   viewport.addEventListener("pointerdown", (event) => {
@@ -1043,15 +1074,16 @@ function initPartnerCarousel() {
 
   viewport.addEventListener("pointermove", (event) => {
     if (!pointerActive) return;
-    const delta = event.clientX - pointerStartX;
-    viewport.scrollLeft = startScrollLeft - delta;
-    syncLoopPosition();
+    viewport.scrollLeft = startScrollLeft - (event.clientX - pointerStartX);
+    wrapForward();
   });
 
   const endPointerInteraction = () => {
     pointerActive = false;
     autoScrollPaused = false;
+    resumeAutoAt = 0;
     viewport.classList.remove("dragging");
+    wrapForward();
   };
 
   viewport.addEventListener("pointerup", endPointerInteraction);
@@ -1066,6 +1098,17 @@ function initPartnerCarousel() {
       stepCarousel(1);
     }
   });
+
+  const startCarousel = () => {
+    viewport.scrollLeft = 0;
+    requestAnimationFrame(tick);
+  };
+
+  if (document.readyState === "complete") {
+    startCarousel();
+  } else {
+    window.addEventListener("load", startCarousel, { once: true });
+  }
 }
 
 function handleLeadSubmit(form, statusElement, successMessage, eventName, endpoint) {
