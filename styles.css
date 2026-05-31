@@ -1093,6 +1093,21 @@ summary:focus-visible,
 .why-grid--numbered article {
   position: relative;
   padding-top: 18px;
+  overflow: hidden;
+}
+
+.why-card-image {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  display: block;
+  transition: transform var(--motion-base) var(--ease-standard);
+}
+
+.why-grid--numbered article:hover .why-card-image {
+  transform: scale(1.03);
 }
 
 .step-num {
@@ -1194,16 +1209,29 @@ summary:focus-visible,
 }
 
 .partners {
-  background: linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(12, 160, 208, 0.06), transparent 55%),
+    linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%);
   border-block: 1px solid rgba(21, 39, 80, 0.06);
+}
+
+.partner-meta {
+  margin: 14px auto 0;
+  color: var(--ink-muted);
+  font-size: 0.92rem;
+}
+
+.partner-meta strong {
+  color: var(--blue-600);
+  font-size: 1.05rem;
 }
 
 .partner-carousel-wrap {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 12px;
-  margin-top: 8px;
+  gap: 16px;
+  margin-top: 12px;
 }
 
 .partner-carousel {
@@ -1212,7 +1240,9 @@ summary:focus-visible,
   scrollbar-width: none;
   -ms-overflow-style: none;
   cursor: grab;
-  mask-image: linear-gradient(to right, transparent 0, black 8%, black 92%, transparent 100%);
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 6px;
+  padding-block: 6px;
 }
 
 .partner-carousel::-webkit-scrollbar {
@@ -1221,60 +1251,78 @@ summary:focus-visible,
 
 .partner-carousel.dragging {
   cursor: grabbing;
+  scroll-snap-type: none;
 }
 
 .partner-track {
   display: flex;
-  gap: 14px;
+  gap: 16px;
   width: max-content;
+  padding-inline: 2px;
 }
 
-.partner-track img,
-.partner-logo {
-  width: 215px;
-  height: 72px;
-  object-fit: contain;
-  background: var(--white);
-  border: 1px solid rgba(21, 39, 80, 0.1);
-  border-radius: 12px;
-  padding: 12px 14px;
+.partner-card {
   flex: 0 0 auto;
+  width: 196px;
+  height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  border: 1px solid rgba(21, 39, 80, 0.08);
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: 0 10px 24px rgba(15, 28, 58, 0.07);
+  scroll-snap-align: start;
   transition: transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-base) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard);
 }
 
-.partner-track img:hover,
-.partner-logo:hover {
-  transform: translateY(-3px);
-  border-color: rgba(12, 160, 208, 0.35);
-  box-shadow: 0 10px 24px rgba(15, 28, 58, 0.12);
+.partner-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(12, 160, 208, 0.32);
+  box-shadow: 0 16px 32px rgba(15, 28, 58, 0.12);
 }
 
-.partner-logo--dark {
+.partner-card--dark {
   background: #0b0b0b;
   border-color: rgba(255, 255, 255, 0.12);
 }
 
-.partner-logo--dark:hover {
+.partner-card--dark:hover {
   border-color: rgba(12, 160, 208, 0.5);
 }
 
-.carousel-control {
-  width: 38px;
-  height: 38px;
-  border-radius: 999px;
-  border: 1px solid var(--gray-300);
-  background: var(--white);
-  color: var(--navy-800);
-  font-size: 1.45rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: border-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard);
+.partner-logo {
+  width: 100%;
+  height: 100%;
+  max-height: 56px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
 }
 
-.carousel-control:hover {
+.carousel-control {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(21, 39, 80, 0.12);
+  background: var(--white);
+  color: var(--navy-800);
+  font-size: 1.55rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(15, 28, 58, 0.1);
+  flex-shrink: 0;
+  transition: border-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+.carousel-control:hover,
+.carousel-control:focus-visible {
   border-color: var(--blue-600);
   color: var(--blue-600);
   transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(12, 160, 208, 0.18);
 }
 
 @media (max-width: 767px) {
@@ -1284,6 +1332,12 @@ summary:focus-visible,
 
   .partner-carousel-wrap {
     grid-template-columns: 1fr;
+  }
+
+  .partner-card {
+    width: 168px;
+    height: 84px;
+    padding: 12px 14px;
   }
 
   .hero--video {
@@ -2041,9 +2095,9 @@ summary {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .partner-track img,
-  .partner-logo {
-    width: 235px;
+  .partner-card {
+    width: 220px;
+    height: 96px;
   }
 
   .step-actions .btn,

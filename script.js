@@ -964,9 +964,9 @@ function initPartnerCarousel() {
   const viewport = document.querySelector("[data-carousel-viewport]");
   const track = document.querySelector("[data-carousel-track]");
   if (!viewport || !track || track.getAttribute("data-cloned") === "true") return;
-  const logos = Array.from(track.children);
-  logos.forEach((logo) => {
-    const clone = logo.cloneNode(true);
+  const cards = Array.from(track.children);
+  cards.forEach((card) => {
+    const clone = card.cloneNode(true);
     clone.setAttribute("aria-hidden", "true");
     track.appendChild(clone);
   });
@@ -976,7 +976,9 @@ function initPartnerCarousel() {
   let pointerActive = false;
   let pointerStartX = 0;
   let startScrollLeft = 0;
-  const scrollStep = 240;
+  const sampleCard = track.querySelector(".partner-card");
+  const cardGap = 16;
+  const scrollStep = sampleCard ? sampleCard.offsetWidth + cardGap : 212;
   const halfTrackWidth = track.scrollWidth / 2;
 
   const prevBtn = document.querySelector("[data-carousel-prev]");
@@ -1054,6 +1056,16 @@ function initPartnerCarousel() {
 
   viewport.addEventListener("pointerup", endPointerInteraction);
   viewport.addEventListener("pointercancel", endPointerInteraction);
+
+  viewport.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      stepCarousel(-1);
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      stepCarousel(1);
+    }
+  });
 }
 
 function handleLeadSubmit(form, statusElement, successMessage, eventName, endpoint) {
