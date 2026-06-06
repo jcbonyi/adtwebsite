@@ -85,7 +85,7 @@ async function renderBlogPost() {
   document.title = `${post.title} | ADT Insurance Insights`;
   if (postCategory) postCategory.textContent = post.category;
   postTitle.textContent = post.title;
-  if (postMeta) postMeta.textContent = `${formatDate(post.publishedAt)} · ${post.author}`;
+  if (postMeta) postMeta.textContent = `${formatDate(post.publishedAt)} · ${post.readTime || "4 min read"} · ${post.author}`;
   if (postContent) {
     const relatedPosts = posts.filter((item) => item.slug !== post.slug).slice(0, 2);
     const serviceLinks = getServiceLinks(post);
