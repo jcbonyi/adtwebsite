@@ -51,11 +51,12 @@ async function renderBlogList() {
     .map(
       (post) => `
       <article class="insight-card">
+        <img class="insight-card-image" src="${post.image || "assets/images/advisory-meeting.jpg"}" alt="" loading="lazy">
         <p class="eyebrow">${post.category}</p>
         <h3><a href="blog-post.html?slug=${encodeURIComponent(post.slug)}">${post.title}</a></h3>
         <p>${post.excerpt}</p>
         <p class="insight-card-meta">${formatDate(post.publishedAt)} · ${post.author}</p>
-        <a class="text-link insight-card-link" href="blog-post.html?slug=${encodeURIComponent(post.slug)}">Read article</a>
+        <a class="text-link insight-card-link" href="blog-post.html?slug=${encodeURIComponent(post.slug)}">Read Insight</a>
       </article>
     `
     )

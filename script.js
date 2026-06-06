@@ -218,12 +218,11 @@ function initHeroSlider() {
   const nextBtn = document.querySelector("[data-hero-next]");
   const primaryCta = document.getElementById("hero-cta-primary");
   const heroSection = document.querySelector(".hero");
+  const heroStats = Array.from(document.querySelectorAll(".hero-stat[data-hero-stat]"));
 
   if (!tabs.length || !textSlides.length) return;
 
   let activeIndex = 0;
-  let timerId = null;
-  let paused = false;
 
   const setSlide = (index) => {
     activeIndex = (index + slideOrder.length) % slideOrder.length;
@@ -255,6 +254,12 @@ function initHeroSlider() {
       media.classList.toggle("is-active", media.getAttribute("data-hero-slide") === slideKey);
     });
 
+    heroStats.forEach((stat) => {
+      const isActive = stat.getAttribute("data-hero-stat") === slideKey;
+      stat.classList.toggle("is-active", isActive);
+      stat.hidden = !isActive;
+    });
+
     const cta = slideCtas[slideKey];
     if (primaryCta && cta) {
       primaryCta.href = cta.href;
@@ -268,25 +273,11 @@ function initHeroSlider() {
   const nextSlide = () => setSlide(activeIndex + 1);
   const prevSlide = () => setSlide(activeIndex - 1);
 
-  const stopAuto = () => {
-    if (timerId) {
-      window.clearInterval(timerId);
-      timerId = null;
-    }
-  };
-
-  const startAuto = () => {
-    stopAuto();
-    if (prefersReducedMotion || paused) return;
-    timerId = window.setInterval(nextSlide, 6500);
-  };
-
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       const key = tab.getAttribute("data-hero-tab");
       const index = slideOrder.indexOf(key || "");
       if (index >= 0) setSlide(index);
-      startAuto();
     });
   });
 
@@ -295,34 +286,13 @@ function initHeroSlider() {
       const key = dot.getAttribute("data-hero-tab");
       const index = slideOrder.indexOf(key || "");
       if (index >= 0) setSlide(index);
-      startAuto();
     });
   });
 
-  if (prevBtn) prevBtn.addEventListener("click", () => { prevSlide(); startAuto(); });
-  if (nextBtn) nextBtn.addEventListener("click", () => { nextSlide(); startAuto(); });
-
-  if (heroSection) {
-    heroSection.addEventListener("mouseenter", () => {
-      paused = true;
-      stopAuto();
-    });
-    heroSection.addEventListener("mouseleave", () => {
-      paused = false;
-      startAuto();
-    });
-    heroSection.addEventListener("focusin", () => {
-      paused = true;
-      stopAuto();
-    });
-    heroSection.addEventListener("focusout", () => {
-      paused = false;
-      startAuto();
-    });
-  }
+  if (prevBtn) prevBtn.addEventListener("click", prevSlide);
+  if (nextBtn) nextBtn.addEventListener("click", nextSlide);
 
   setSlide(0);
-  startAuto();
 }
 
 function initHeroVideo() {
@@ -785,8 +755,8 @@ function initGlobalChatbot() {
   panel.className = "chatbot-panel";
   panel.setAttribute("aria-hidden", "true");
   panel.innerHTML = `
-    <h3>ADT Assistant</h3>
-    <p>I can help you with quotes, claims, and product guidance.</p>
+    <h3>Chat with us on WhatsApp</h3>
+    <p>We typically reply within 5 minutes during business hours.</p>
     <div class="chat-actions">
       <a href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20a%20quote." class="btn btn-primary" target="_blank" rel="noopener" data-track="cta_whatsapp_chat_quote">Get a Quote</a>
       <a href="https://wa.me/254785227772?text=Hello%20ADT%2C%20I%20need%20to%20report%20a%20claim." class="btn btn-secondary" target="_blank" rel="noopener" data-track="cta_whatsapp_chat_claim">Report a Claim</a>

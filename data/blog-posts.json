@@ -1,86 +1,92 @@
 [
   {
-    "slug": "claim-document-quality-guide",
-    "title": "Claim Document Quality Guide for Faster Processing",
-    "category": "Claims Advisory",
-    "excerpt": "Improve claim turnaround by preparing complete, well-structured documentation from day one.",
-    "author": "ADT Claims Desk",
-    "publishedAt": "2026-05-10T00:00:00.000Z",
-    "content": [
-      "Most claim delays happen because required documents are incomplete or submitted in the wrong order.",
-      "Capture incident details immediately, including time, location, involved parties, and initial evidence.",
-      "Maintain a single folder for policy documents, correspondence, and supporting files to avoid version confusion.",
-      "Ask your advisor for a document checklist before final submission to reduce avoidable back-and-forth with insurers."
-    ]
-  },
-  {
-    "slug": "corporate-risk-review-checklist",
-    "title": "Corporate Insurance Review Checklist for Expanding Operations",
-    "category": "Corporate Advisory",
-    "excerpt": "A practical annual checklist for enterprises reviewing liability, asset, and continuity insurance structures.",
-    "author": "ADT Corporate Risk Desk",
-    "publishedAt": "2026-05-10T00:00:00.000Z",
-    "content": [
-      "Start with your current risk register and compare it against active policies.",
-      "Review policy limits against inflation, asset additions, and cross-border operating exposure.",
-      "Check whether board governance requirements and contractual insurance clauses are reflected in policy wording.",
-      "Track claims patterns from the past 12 months and use lessons to improve policy structure before renewal."
-    ]
-  },
-  {
-    "slug": "medical-cover-for-distributed-teams",
-    "title": "Medical Insurance Planning for Distributed Teams",
-    "category": "Medical Insurance",
-    "excerpt": "How growing companies can structure medical cover for teams across multiple locations and travel patterns.",
-    "author": "ADT Health Benefits Team",
-    "publishedAt": "2026-05-10T00:00:00.000Z",
-    "content": [
-      "Distributed teams need medical plans that balance inpatient, outpatient, and emergency support access.",
-      "Map employee location patterns and provider access before finalizing benefit structures.",
-      "Align waiting periods and benefit limits with your workforce profile to avoid gaps at critical moments.",
-      "Review usage trends quarterly and adjust plan design as team size and operating footprint change."
-    ]
-  },
-  {
-    "slug": "motor-insurance-logistics-mombasa",
-    "title": "Motor Insurance Strategy for Logistics Fleets",
-    "category": "Motor Insurance",
-    "excerpt": "Risk controls and policy design recommendations for high-usage transport operations.",
+    "slug": "how-to-file-motor-claim-kenya",
+    "title": "How to file a motor claim in Kenya: step-by-step",
+    "category": "Motor",
+    "excerpt": "A practical walkthrough for reporting motor incidents, gathering evidence, and submitting a complete claim file. Follow these steps to avoid common delays with insurers and get back on the road faster.",
     "author": "ADT Motor Risk Team",
-    "publishedAt": "2026-05-10T00:00:00.000Z",
+    "publishedAt": "2026-04-12T00:00:00.000Z",
+    "image": "assets/images/solutions/solution-motor.png",
     "content": [
-      "Fleet operations need policy structures that align with route risk, cargo type, and downtime exposure.",
-      "Use telematics, driver compliance checks, and maintenance records to strengthen underwriting profile.",
-      "Create claims escalation contacts before incidents happen so your response is immediate and coordinated.",
-      "Review limits and deductibles quarterly as vehicle usage and route complexity evolve."
+      "Report the incident to your broker and insurer as soon as it is safe to do so. Note the time, location, vehicle details, and any third parties involved.",
+      "Take clear photos of vehicle damage, the scene, and relevant documents including your driving licence and logbook.",
+      "Complete the claim form accurately and attach the police abstract where required, repair estimates, and any witness statements.",
+      "Your ADT advisor can review your file before submission to reduce back-and-forth and speed up insurer assessment."
     ]
   },
   {
-    "slug": "sme-claim-delays-kenya",
-    "title": "How SMEs Can Reduce Insurance Claim Delays",
-    "category": "Claims Advisory",
-    "excerpt": "Simple documentation and process habits that help SMEs receive faster claim outcomes.",
-    "author": "ADT Advisory Desk",
-    "publishedAt": "2026-05-10T00:00:00.000Z",
-    "content": [
-      "Claim delays usually happen because of missing or inconsistent records.",
-      "SMEs should maintain updated policy schedules, incident reports, and contact logs.",
-      "Report incidents immediately and avoid waiting for complete internal documentation before notifying your advisor.",
-      "Work with your broker to standardize internal incident checklists and reduce turnaround time."
-    ]
-  },
-  {
-    "slug": "wiba-liability-compliance-kenya",
-    "title": "WIBA and Liability Compliance for Growing Teams",
+    "slug": "what-wiba-covers-legal-requirements",
+    "title": "What WIBA covers and who is legally required to have it",
     "category": "Compliance",
-    "excerpt": "How expanding businesses can remain compliant while protecting employee and third-party risk.",
+    "excerpt": "Work Injury Benefits Act cover protects employees injured at work and is mandatory for most employers in Kenya. Understand what WIBA includes, who must comply, and how it fits alongside employers liability.",
     "author": "ADT Compliance Desk",
-    "publishedAt": "2026-05-10T00:00:00.000Z",
+    "publishedAt": "2026-04-18T00:00:00.000Z",
+    "image": "assets/images/wiba-cover.jpg",
     "content": [
-      "As your team grows, liability exposure grows with it.",
-      "WIBA should be reviewed alongside employers liability and public liability requirements.",
-      "Document role-based risk exposures and update policy declarations at renewal to avoid underinsurance.",
-      "A proactive compliance review reduces penalties, claim friction, and financial uncertainty."
+      "WIBA provides compensation for work-related injuries, disabilities, and death arising from employment duties.",
+      "Employers with one or more employees are generally required to maintain WIBA-compliant cover under Kenyan law.",
+      "WIBA should be reviewed alongside employers liability and occupational safety policies to close gaps in workforce protection.",
+      "ADT helps businesses structure compliant WIBA cover and maintain accurate employee schedules at renewal."
+    ]
+  },
+  {
+    "slug": "reduce-claim-delays-sme-kenya",
+    "title": "How to reduce claim delays for SMEs",
+    "category": "SME",
+    "excerpt": "Small businesses lose time and cash flow when claims stall over missing paperwork. These habits help SMEs report faster, document incidents properly, and keep insurer review moving.",
+    "author": "ADT Advisory Desk",
+    "publishedAt": "2026-04-22T00:00:00.000Z",
+    "image": "assets/images/solutions/solution-sme.png",
+    "content": [
+      "Assign one internal contact for all insurance incidents and keep policy schedules, receipts, and asset registers updated.",
+      "Report incidents within 24 hours even if you are still gathering internal records.",
+      "Use a simple checklist: photos, incident report, policy number, and contact details for all parties involved.",
+      "Work with your broker to pre-agree escalation contacts so claims receive immediate attention during business hours."
+    ]
+  },
+  {
+    "slug": "marine-insurance-importers-exporters",
+    "title": "Marine insurance for importers and exporters",
+    "category": "Compliance",
+    "excerpt": "Cargo in transit faces theft, damage, and delay risks that standard business policies may not fully address. Learn how marine cover protects goods from warehouse to port and across international routes.",
+    "author": "ADT Corporate Risk Desk",
+    "publishedAt": "2026-05-02T00:00:00.000Z",
+    "image": "assets/images/marine-cover.jpg",
+    "content": [
+      "Marine cargo policies protect goods against loss or damage during sea, air, and inland transit.",
+      "Importers and exporters should align cover with Incoterms, consignment value, and route-specific risks.",
+      "Document packing lists, bills of lading, and commercial invoices before shipment to support faster claims.",
+      "ADT advises on marine structures for SMEs and corporates moving goods across East Africa and global markets."
+    ]
+  },
+  {
+    "slug": "medical-insurance-group-vs-individual",
+    "title": "Medical insurance: group vs individual plans compared",
+    "category": "Medical",
+    "excerpt": "Choosing between group and individual medical cover depends on team size, budget, and benefit priorities. Compare access, premiums, waiting periods, and dependant options before you commit.",
+    "author": "ADT Health Benefits Team",
+    "publishedAt": "2026-05-08T00:00:00.000Z",
+    "image": "assets/images/solutions/solution-medical.png",
+    "content": [
+      "Group plans suit employers offering inpatient, outpatient, and maternity benefits across a workforce with shared underwriting.",
+      "Individual and family plans offer flexibility for owners, freelancers, and dependants not covered by an employer scheme.",
+      "Compare provider networks, sub-limits, co-pays, and chronic condition cover before selecting a plan.",
+      "ADT helps growing teams design medical structures that balance cost, access, and renewal stability."
+    ]
+  },
+  {
+    "slug": "pre-renewal-checklist-corporate-insurance",
+    "title": "Pre-renewal checklist for corporate insurance buyers",
+    "category": "Compliance",
+    "excerpt": "Renewal season is the best time to fix underinsurance, update asset schedules, and align policies with how your business actually operates. Use this checklist before signing your next corporate programme.",
+    "author": "ADT Corporate Risk Desk",
+    "publishedAt": "2026-05-14T00:00:00.000Z",
+    "image": "assets/images/solutions/solution-corporate.png",
+    "content": [
+      "Review your risk register against active policies and note new locations, assets, or contracts from the past year.",
+      "Update sums insured for inflation, equipment additions, and changes in headcount or turnover.",
+      "Analyse claims history and near-misses to adjust limits, deductibles, and cover extensions.",
+      "Confirm board, lender, and contractual insurance requirements are reflected in policy wording before renewal."
     ]
   }
 ]

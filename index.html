@@ -84,9 +84,10 @@
             <a class="btn btn-secondary" id="hero-cta-secondary" href="#claims-form" data-track="cta_claim_hero">Report a Claim</a>
             <a class="btn btn-outline" id="hero-cta-tertiary" href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20insurance%20support." target="_blank" rel="noopener" data-track="cta_whatsapp_hero">Talk on WhatsApp</a>
           </div>
-          <div class="hero-meta">
-            <span>Avg. response: <strong>Under 15 minutes</strong></span>
-            <span>WhatsApp support: <strong>Rapid daily follow-up</strong></span>
+          <div class="hero-meta" id="hero-meta">
+            <span class="hero-stat is-active" data-hero-stat="personal">Avg. response: <strong>Under 15 mins</strong></span>
+            <span class="hero-stat" data-hero-stat="commercial" hidden><strong>20+</strong> industries covered</span>
+            <span class="hero-stat" data-hero-stat="motor" hidden><strong>Fleet &amp; PSV</strong> specialists</span>
           </div>
           <div class="hero-slider-controls" aria-label="Hero slider controls">
             <button class="hero-slider-btn" type="button" data-hero-prev aria-label="Previous slide">&#8249;</button>
@@ -411,19 +412,47 @@
           <p class="section-lead">Trusted by more than 3,800 satisfied clients across Kenya and global markets.</p>
         </div>
         <div class="testimonial-grid">
-          <blockquote>
+          <blockquote class="testimonial-card">
+            <div class="testimonial-top">
+              <span class="testimonial-avatar" style="--avatar-bg:#1496BE" aria-hidden="true">JM</span>
+              <div>
+                <p class="testimonial-stars" aria-label="5 out of 5 stars">★★★★★</p>
+                <span class="testimonial-verified">Verified client</span>
+              </div>
+            </div>
             <p>"Working with ADT has been a game-changer for our logistics operations. Their team is responsive, professional, and always a call away."</p>
             <cite><strong>Jane Mwikali</strong><span>Operations Manager, Sifa Logistics Ltd</span></cite>
           </blockquote>
-          <blockquote>
+          <blockquote class="testimonial-card">
+            <div class="testimonial-top">
+              <span class="testimonial-avatar" style="--avatar-bg:#8CB450" aria-hidden="true">MW</span>
+              <div>
+                <p class="testimonial-stars" aria-label="5 out of 5 stars">★★★★★</p>
+                <span class="testimonial-verified">Verified client</span>
+              </div>
+            </div>
             <p>"ADT helped me protect my store and inventory with a plan that fit my exact needs. Their service is personal, affordable, and always reliable."</p>
             <cite><strong>Mercy Wambua</strong><span>Retail Business Owner</span></cite>
           </blockquote>
-          <blockquote>
+          <blockquote class="testimonial-card">
+            <div class="testimonial-top">
+              <span class="testimonial-avatar" style="--avatar-bg:#464646" aria-hidden="true">KM</span>
+              <div>
+                <p class="testimonial-stars" aria-label="5 out of 5 stars">★★★★★</p>
+                <span class="testimonial-verified">Verified client</span>
+              </div>
+            </div>
             <p>"From equipment to workers' cover, ADT has simplified our insurance process. They are proactive, detail-oriented, and quick when incidents arise."</p>
             <cite><strong>Eng. Kevin Mwangi</strong><span>Site Manager, Construction Sector</span></cite>
           </blockquote>
-          <blockquote>
+          <blockquote class="testimonial-card">
+            <div class="testimonial-top">
+              <span class="testimonial-avatar" style="--avatar-bg:#1496BE" aria-hidden="true">DO</span>
+              <div>
+                <p class="testimonial-stars" aria-label="5 out of 5 stars">★★★★★</p>
+                <span class="testimonial-verified">Verified client</span>
+              </div>
+            </div>
             <p>"We rely on ADT to cover our staff and property. Their tailored packages gave us peace of mind without breaking the budget."</p>
             <cite><strong>David Otieno</strong><span>School Administrator</span></cite>
           </blockquote>
@@ -459,22 +488,60 @@
 
     <section class="section alt">
       <div class="container">
-        <div class="section-head">
-          <p class="eyebrow">Advisor Team</p>
+        <div class="section-head section-head--center">
+          <p class="eyebrow">Our Team</p>
           <h2>Insurance experts you can reach directly</h2>
+          <p class="section-lead">Experienced professionals dedicated to tailored insurance solutions with integrity and responsive client support.</p>
         </div>
-        <div class="advisor-grid">
-          <article>
-            <h3>Claims Advisory Lead</h3>
-            <p>Coordinates claim triage, documentation quality, and settlement follow-up for business and personal lines.</p>
+        <div class="advisor-grid team-grid">
+          <article class="team-card">
+            <span class="team-avatar" style="--avatar-bg:#1496BE" aria-hidden="true">ZD</span>
+            <h3>Zafir Din</h3>
+            <p class="team-title">Principal Officer</p>
+            <p>Founding Principal Officer with 20+ years in insurance, leading ADT since 2019 with a focus on growth, strategy, and client-centric service.</p>
+            <a class="text-link team-whatsapp" href="https://wa.me/254711533245?text=Hello%20Zafir%2C%20I%20would%20like%20to%20speak%20with%20ADT%20about%20insurance%20advisory." target="_blank" rel="noopener">Reach on WhatsApp</a>
           </article>
-          <article>
-            <h3>Corporate Risk Advisor</h3>
-            <p>Designs enterprise insurance architecture for multi-location operations, liability, and continuity planning.</p>
+          <article class="team-card">
+            <span class="team-avatar" style="--avatar-bg:#8CB450" aria-hidden="true">AS</span>
+            <h3>Aishajamila Salim</h3>
+            <p class="team-title">Operations Manager</p>
+            <p>Operations leader with deep experience in claims, renewals, and compliance — focused on efficient service delivery and high-performing teams.</p>
+            <a class="text-link team-whatsapp" href="https://wa.me/254711533245?text=Hello%20Aishajamila%2C%20I%20would%20like%20to%20speak%20with%20ADT%20about%20insurance%20advisory." target="_blank" rel="noopener">Reach on WhatsApp</a>
           </article>
-          <article>
-            <h3>SME and Motor Specialist</h3>
-            <p>Supports growing businesses and fleet operators with right-sized cover, renewal planning, and risk controls.</p>
+          <article class="team-card">
+            <span class="team-avatar" style="--avatar-bg:#464646" aria-hidden="true">JO</span>
+            <h3>Jacob Onyango</h3>
+            <p class="team-title">IT / Compliance</p>
+            <p>IT and compliance professional ensuring secure, efficient systems aligned with organisational standards and regulatory requirements.</p>
+            <a class="text-link team-whatsapp" href="https://wa.me/254711533245?text=Hello%20Jacob%2C%20I%20would%20like%20to%20speak%20with%20ADT%20about%20insurance%20advisory." target="_blank" rel="noopener">Reach on WhatsApp</a>
+          </article>
+          <article class="team-card">
+            <span class="team-avatar" style="--avatar-bg:#1496BE" aria-hidden="true">AM</span>
+            <h3>Amon Mokandu</h3>
+            <p class="team-title">Financial Controller</p>
+            <p>Financial controller with 7+ years in management, compliance, and cost-effective operations across local and regulatory frameworks.</p>
+            <a class="text-link team-whatsapp" href="https://wa.me/254711533245?text=Hello%20Amon%2C%20I%20would%20like%20to%20speak%20with%20ADT%20about%20insurance%20advisory." target="_blank" rel="noopener">Reach on WhatsApp</a>
+          </article>
+          <article class="team-card">
+            <span class="team-avatar" style="--avatar-bg:#8CB450" aria-hidden="true">MK</span>
+            <h3>Margaret Kihugu</h3>
+            <p class="team-title">Operations Officer</p>
+            <p>Underwriting operations specialist focused on retention, revenue growth, and client satisfaction across policy lifecycle management.</p>
+            <a class="text-link team-whatsapp" href="https://wa.me/254711533245?text=Hello%20Margaret%2C%20I%20would%20like%20to%20speak%20with%20ADT%20about%20insurance%20advisory." target="_blank" rel="noopener">Reach on WhatsApp</a>
+          </article>
+          <article class="team-card">
+            <span class="team-avatar" style="--avatar-bg:#464646" aria-hidden="true">NM</span>
+            <h3>Naomi Masila</h3>
+            <p class="team-title">Admin Officer</p>
+            <p>Administrative officer with 5+ years in office management and HR support, keeping daily operations organised and client-ready.</p>
+            <a class="text-link team-whatsapp" href="https://wa.me/254711533245?text=Hello%20Naomi%2C%20I%20would%20like%20to%20speak%20with%20ADT%20about%20insurance%20advisory." target="_blank" rel="noopener">Reach on WhatsApp</a>
+          </article>
+          <article class="team-card">
+            <span class="team-avatar" style="--avatar-bg:#1496BE" aria-hidden="true">ZY</span>
+            <h3>Zayan Din</h3>
+            <p class="team-title">Management Trainee</p>
+            <p>Management trainee supporting leadership across business development, client service, and operational excellence initiatives.</p>
+            <a class="text-link team-whatsapp" href="https://wa.me/254711533245?text=Hello%20Zayan%2C%20I%20would%20like%20to%20speak%20with%20ADT%20about%20insurance%20advisory." target="_blank" rel="noopener">Reach on WhatsApp</a>
           </article>
         </div>
       </div>
@@ -687,6 +754,7 @@
       </div>
     </div>
     <p class="copyright">© <span id="year"></span> ADT Africa Insurance Brokers Ltd. All rights reserved.</p>
+    <p class="footer-regulatory">Licensed Insurance Broker Regulated By IRA(Insurance Regulatory Authority of Kenya)</p>
   </footer>
 
   <a class="whatsapp-float" href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20help%20with%20insurance." target="_blank" rel="noopener" aria-label="Chat on WhatsApp" data-track="cta_whatsapp_float">
@@ -701,8 +769,8 @@
 
   <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Open chat assistant">Chat</button>
   <aside id="chatbot-panel" class="chatbot-panel" aria-hidden="true">
-    <h3>ADT Assistant</h3>
-    <p>I can help you with quotes, claims, and product guidance.</p>
+    <h3>Chat with us on WhatsApp</h3>
+    <p>We typically reply within 5 minutes during business hours.</p>
     <div class="chat-actions">
       <a href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20a%20quote." class="btn btn-primary" target="_blank" rel="noopener" data-track="cta_whatsapp_chat_quote">Get a Quote</a>
       <a href="https://wa.me/254785227772?text=Hello%20ADT%2C%20I%20need%20to%20report%20a%20claim." class="btn btn-secondary" target="_blank" rel="noopener" data-track="cta_whatsapp_chat_claim">Report a Claim</a>
