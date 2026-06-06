@@ -747,15 +747,15 @@ function initGlobalChatbot() {
   toggle.id = "chatbot-toggle";
   toggle.className = "chatbot-toggle";
   toggle.type = "button";
-  toggle.setAttribute("aria-label", "Open chat assistant");
-  toggle.textContent = "Chat";
+  toggle.setAttribute("aria-label", "Chat on WhatsApp");
+  toggle.textContent = "Chat on WhatsApp";
 
   const panel = document.createElement("aside");
   panel.id = "chatbot-panel";
   panel.className = "chatbot-panel";
   panel.setAttribute("aria-hidden", "true");
   panel.innerHTML = `
-    <h3>Chat with us on WhatsApp</h3>
+    <h3>Chat on WhatsApp</h3>
     <p>We typically reply within 5 minutes during business hours.</p>
     <div class="chat-actions">
       <a href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20a%20quote." class="btn btn-primary" target="_blank" rel="noopener" data-track="cta_whatsapp_chat_quote">Get a Quote</a>
