@@ -1084,6 +1084,16 @@ summary:focus-visible,
   font-size: 1.05rem;
 }
 
+.team-photo {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  object-fit: cover;
+  object-position: top center;
+  border: 2px solid rgba(20, 150, 190, 0.22);
+  flex-shrink: 0;
+}
+
 .team-title {
   margin: 0;
   color: #1496BE;
