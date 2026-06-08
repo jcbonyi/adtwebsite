@@ -1115,7 +1115,8 @@ textarea:focus {
 .team-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  align-items: flex-start;
 }
 
 .team-card h3 {
@@ -1123,14 +1124,23 @@ textarea:focus {
   font-size: 1.05rem;
 }
 
+.team-photo,
+.team-card .team-avatar {
+  width: clamp(104px, 16vw, 132px);
+  height: clamp(104px, 16vw, 132px);
+  flex-shrink: 0;
+}
+
+.team-card .team-avatar {
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
+}
+
 .team-photo {
-  width: 72px;
-  height: 72px;
   border-radius: 999px;
   object-fit: cover;
   object-position: top center;
-  border: 2px solid rgba(20, 150, 190, 0.22);
-  flex-shrink: 0;
+  border: 3px solid rgba(20, 150, 190, 0.22);
+  box-shadow: 0 8px 20px rgba(15, 28, 58, 0.1);
 }
 
 .industry-tags {
