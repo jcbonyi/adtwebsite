@@ -67,8 +67,7 @@ document.addEventListener("keydown", (event) => {
     setMobileMenuOpen(false);
   }
   if (chatbotPanel && chatbotPanel.classList.contains("open")) {
-    chatbotPanel.classList.remove("open");
-    chatbotPanel.setAttribute("aria-hidden", "true");
+    setChatbotOpen(false);
   }
   if (leadModal && leadModal.classList.contains("open")) {
     closeLeadModal();
@@ -83,11 +82,21 @@ if (siteHeader) {
   window.addEventListener("scroll", handleHeaderState, { passive: true });
 }
 
+function setChatbotOpen(isOpen) {
+  if (!chatbotPanel) return;
+  chatbotPanel.classList.toggle("open", isOpen);
+  chatbotPanel.setAttribute("aria-hidden", String(!isOpen));
+}
+
 if (chatbotToggle && chatbotPanel) {
   chatbotToggle.addEventListener("click", () => {
-    const isOpen = chatbotPanel.classList.toggle("open");
-    chatbotPanel.setAttribute("aria-hidden", String(!isOpen));
+    setChatbotOpen(!chatbotPanel.classList.contains("open"));
   });
+}
+
+const chatbotClose = document.getElementById("chatbot-close");
+if (chatbotClose) {
+  chatbotClose.addEventListener("click", () => setChatbotOpen(false));
 }
 
 function initGa4(measurementId) {
@@ -685,7 +694,8 @@ function initSingleFaqOpen() {
 
 function initScrollReveal() {
   if (prefersReducedMotion) return;
-  const targets = document.querySelectorAll(".section, .value-strip, .cta-band, .page-cta-bar");
+  document.documentElement.classList.add("js-reveal");
+  const targets = document.querySelectorAll(".section, .value-strip, .cta-band, .page-cta-bar, .stats-bar, .cta-banner");
   targets.forEach((el) => el.classList.add("reveal"));
   const observer = new IntersectionObserver(
     (entries) => {
@@ -718,7 +728,13 @@ function initActiveNav() {
 
 function initPageCtaBar() {
   const footer = document.querySelector(".site-footer");
-  if (!footer || document.querySelector(".page-cta-bar") || document.querySelector(".cta-band")) return;
+  if (
+    !footer ||
+    document.querySelector(".page-cta-bar") ||
+    document.querySelector(".cta-band") ||
+    document.querySelector(".cta-banner") ||
+    document.querySelector(".page-cta-block")
+  ) return;
   const page = window.location.pathname.split("/").pop() || "index.html";
   if (page === "index.html" || page === "") return;
 
@@ -755,7 +771,10 @@ function initGlobalChatbot() {
   panel.className = "chatbot-panel";
   panel.setAttribute("aria-hidden", "true");
   panel.innerHTML = `
-    <h3>Chat with us on WhatsApp</h3>
+    <div class="chatbot-panel-header">
+      <h3>Chat with us on WhatsApp</h3>
+      <button type="button" class="chatbot-close" aria-label="Close chat panel">&times;</button>
+    </div>
     <p>We typically reply within 5 minutes during business hours.</p>
     <div class="chat-actions">
       <a href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20a%20quote." class="btn btn-primary" target="_blank" rel="noopener" data-track="cta_whatsapp_chat_quote">Get a Quote</a>
@@ -765,6 +784,14 @@ function initGlobalChatbot() {
 
   document.body.appendChild(toggle);
   document.body.appendChild(panel);
+
+  const injectedClose = panel.querySelector(".chatbot-close");
+  if (injectedClose) {
+    injectedClose.addEventListener("click", () => {
+      panel.classList.remove("open");
+      panel.setAttribute("aria-hidden", "true");
+    });
+  }
 
   toggle.addEventListener("click", () => {
     const isOpen = panel.classList.toggle("open");
