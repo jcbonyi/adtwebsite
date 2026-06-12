@@ -44,6 +44,12 @@ if (menuToggle && mainNav) {
       setMobileMenuOpen(false);
     });
   });
+
+  mainNav.addEventListener("click", (event) => {
+    if (event.target === mainNav) {
+      setMobileMenuOpen(false);
+    }
+  });
 }
 
 document.addEventListener("click", (event) => {
