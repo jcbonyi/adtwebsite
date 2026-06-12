@@ -35,6 +35,54 @@ function setMetaTag(name, content, isProperty = false) {
   node.setAttribute("content", content);
 }
 
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function renderArticleContent(blocks) {
+  if (!Array.isArray(blocks) || !blocks.length) return "";
+
+  let html = "";
+  let inList = false;
+
+  const closeList = () => {
+    if (inList) {
+      html += "</ul>";
+      inList = false;
+    }
+  };
+
+  blocks.forEach((block) => {
+    const text = String(block).trim();
+    if (!text) return;
+
+    if (text.startsWith("## ")) {
+      closeList();
+      html += `<h2>${escapeHtml(text.slice(3))}</h2>`;
+      return;
+    }
+
+    if (text.startsWith("- ")) {
+      if (!inList) {
+        html += "<ul>";
+        inList = true;
+      }
+      html += `<li>${escapeHtml(text.slice(2))}</li>`;
+      return;
+    }
+
+    closeList();
+    html += `<p>${escapeHtml(text)}</p>`;
+  });
+
+  closeList();
+  return html;
+}
+
 function getServiceLinks(post) {
   const title = `${post.title} ${post.category}`.toLowerCase();
   const links = [];
@@ -45,6 +93,18 @@ function getServiceLinks(post) {
     links.push({ label: "How Claims Work", href: "how-claims-work.html" });
   }
   if (title.includes("wiba") || title.includes("liability") || title.includes("compliance")) {
+    links.push({ label: "Corporate Insurance Services", href: "corporate-insurance-services.html" });
+  }
+  if (title.includes("marine") || title.includes("cargo") || title.includes("logistics")) {
+    links.push({ label: "Logistics Insurance Advisory", href: "logistics-insurance-advisory.html" });
+  }
+  if (title.includes("medical") || title.includes("group")) {
+    links.push({ label: "Medical Insurance Advisory", href: "medical-insurance-advisory.html" });
+  }
+  if (title.includes("sme") || title.includes("small business")) {
+    links.push({ label: "SME Insurance Kenya", href: "sme-insurance-kenya.html" });
+  }
+  if (title.includes("corporate") || title.includes("renewal")) {
     links.push({ label: "Corporate Insurance Services", href: "corporate-insurance-services.html" });
   }
   if (!links.length) {
@@ -62,12 +122,11 @@ async function renderBlogList() {
   blogList.innerHTML = posts
     .map(
       (post) => `
-      <article class="insight-card">
-        <img class="insight-card-image" src="${post.image || "assets/images/advisory-meeting.jpg"}" alt="" loading="lazy">
-        <p class="eyebrow">${post.category}</p>
-        <h3><a href="blog-post.html?slug=${encodeURIComponent(post.slug)}">${post.title}</a></h3>
-        <p>${post.excerpt}</p>
-        <p class="insight-card-meta">${formatDate(post.publishedAt)} · ${post.author}</p>
+      <article class="insight-card blog-card">
+        <span class="category-pill">${escapeHtml(post.category)}</span>
+        <h3><a href="blog-post.html?slug=${encodeURIComponent(post.slug)}">${escapeHtml(post.title)}</a></h3>
+        <p>${escapeHtml(post.excerpt)}</p>
+        <p class="insight-read-time">${escapeHtml(post.readTime || "5 min read")}</p>
         <a class="text-link insight-card-link" href="blog-post.html?slug=${encodeURIComponent(post.slug)}">Read Insight</a>
       </article>
     `
@@ -115,7 +174,7 @@ async function renderBlogPost() {
     const relatedPosts = posts.filter((item) => item.slug !== post.slug).slice(0, 2);
     const serviceLinks = getServiceLinks(post);
     postContent.innerHTML = `
-      ${post.content.map((paragraph) => `<p>${paragraph}</p>`).join("")}
+      ${renderArticleContent(post.content)}
       <h3>Related solutions</h3>
       <ul>
         ${serviceLinks.map((link) => `<li><a class="text-link" href="${link.href}">${link.label}</a></li>`).join("")}
