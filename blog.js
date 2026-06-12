@@ -118,7 +118,17 @@ async function renderBlogList() {
   if (!blogList) return;
 
   blogList.innerHTML = '<p class="insight-loading">Loading insights…</p>';
-  const posts = await fetchPosts();
+  let posts;
+  try {
+    posts = await fetchPosts();
+  } catch (_error) {
+    blogList.innerHTML = '<p class="insight-error">We could not load insights. <a class="text-link" href="blog.html">Try again</a></p>';
+    return;
+  }
+  if (!posts.length) {
+    blogList.innerHTML = '<p class="insight-error">No insights published yet. Check back soon.</p>';
+    return;
+  }
   blogList.innerHTML = posts
     .map(
       (post) => `
@@ -133,6 +143,32 @@ async function renderBlogList() {
     )
     .join("");
 }
+
+function initReadingProgress() {
+  const bar = document.createElement("div");
+  bar.className = "reading-progress";
+  bar.setAttribute("aria-hidden", "true");
+  document.body.prepend(bar);
+
+  const article = document.getElementById("post-content");
+  if (!article) {
+    bar.remove();
+    return;
+  }
+
+  const update = () => {
+    const rect = article.getBoundingClientRect();
+    const start = window.scrollY + rect.top - HEADER_OFFSET;
+    const height = Math.max(article.offsetHeight - window.innerHeight * 0.4, 1);
+    const progress = Math.min(Math.max((window.scrollY - start) / height, 0), 1);
+    bar.style.setProperty("--progress", String(progress));
+  };
+
+  window.addEventListener("scroll", update, { passive: true });
+  update();
+}
+
+const HEADER_OFFSET = 88;
 
 async function renderBlogPost() {
   const postTitle = document.getElementById("post-title");
@@ -174,6 +210,7 @@ async function renderBlogPost() {
     const relatedPosts = posts.filter((item) => item.slug !== post.slug).slice(0, 2);
     const serviceLinks = getServiceLinks(post);
     postContent.innerHTML = `
+      <p class="article-back"><a class="text-link" href="blog.html">&larr; Back to all insights</a></p>
       ${renderArticleContent(post.content)}
       <h3>Related solutions</h3>
       <ul>
@@ -188,6 +225,7 @@ async function renderBlogPost() {
       <p><a class="btn btn-primary" href="index.html#quote">Request a Quote</a></p>
     `;
     postContent.classList.add("article-prose");
+    initReadingProgress();
   }
 }
 

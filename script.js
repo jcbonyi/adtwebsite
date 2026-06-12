@@ -72,7 +72,8 @@ document.addEventListener("keydown", (event) => {
   if (mainNav && mainNav.classList.contains("open")) {
     setMobileMenuOpen(false);
   }
-  if (chatbotPanel && chatbotPanel.classList.contains("open")) {
+  const openChatPanel = document.getElementById("chatbot-panel");
+  if (openChatPanel && openChatPanel.classList.contains("open")) {
     setChatbotOpen(false);
   }
   if (leadModal && leadModal.classList.contains("open")) {
@@ -89,9 +90,19 @@ if (siteHeader) {
 }
 
 function setChatbotOpen(isOpen) {
-  if (!chatbotPanel) return;
-  chatbotPanel.classList.toggle("open", isOpen);
-  chatbotPanel.setAttribute("aria-hidden", String(!isOpen));
+  const panel = document.getElementById("chatbot-panel");
+  const toggle = document.getElementById("chatbot-toggle");
+  if (!panel) return;
+  panel.classList.toggle("open", isOpen);
+  panel.setAttribute("aria-hidden", String(!isOpen));
+  if (isOpen) {
+    const firstAction = panel.querySelector(".chatbot-close, .btn");
+    if (firstAction instanceof HTMLElement) {
+      firstAction.focus();
+    }
+  } else if (toggle instanceof HTMLElement) {
+    toggle.focus();
+  }
 }
 
 if (chatbotToggle && chatbotPanel) {
@@ -458,6 +469,7 @@ function initQuoteTemplateChips() {
       const productChoice = chip.getAttribute("data-template-product");
       if (business) businessType.value = business;
       if (productChoice) product.value = productChoice;
+      document.getElementById("phone")?.focus({ preventScroll: true });
       trackLeadEvent("template_select", {
         business_type: business || "unknown",
         product: productChoice || "unknown"
@@ -480,8 +492,238 @@ function initClaimAssistant() {
     "Marine / transit loss": "Recommended first documents: dispatch records, goods manifest, delivery notes, loss/damage photos."
   };
 
-  incidentType.addEventListener("change", () => {
-    hint.textContent = docHints[incidentType.value] || "Select incident type to see recommended first documents.";
+  const docLinks = {
+    "Motor accident": { label: "Download motor claim guide", href: "assets/documents/motor-claim-guide.pdf" },
+    "Work injury (WIBA)": { label: "Download WIBA compliance guide", href: "assets/documents/wiba-compliance-guide.pdf" },
+    "Fire or property damage": { label: "Download claim checklist", href: "assets/documents/claim-checklist.pdf" },
+    "Marine / transit loss": { label: "Open marine advisory", href: "logistics-insurance-advisory.html" }
+  };
+
+  let docLinkEl = document.getElementById("claim-doc-link");
+  if (!docLinkEl) {
+    docLinkEl = document.createElement("p");
+    docLinkEl.id = "claim-doc-link";
+    docLinkEl.className = "field-hint claim-doc-link";
+    hint.insertAdjacentElement("afterend", docLinkEl);
+  }
+
+  const updateHint = () => {
+    const value = incidentType.value;
+    hint.textContent = docHints[value] || "Select incident type to see recommended first documents.";
+    const link = docLinks[value];
+    if (link) {
+      const isPdf = link.href.endsWith(".pdf");
+      docLinkEl.innerHTML = `<a class="text-link" href="${link.href}"${isPdf ? " download" : ""}>${link.label}</a>`;
+      docLinkEl.hidden = false;
+    } else {
+      docLinkEl.innerHTML = "";
+      docLinkEl.hidden = true;
+    }
+  };
+
+  incidentType.addEventListener("change", updateHint);
+  updateHint();
+}
+
+function isWithinBusinessHours() {
+  const now = new Date();
+  const day = now.getDay();
+  const minutes = now.getHours() * 60 + now.getMinutes();
+  const weekdayOpen = 8 * 60 + 30;
+  const weekdayClose = 17 * 60;
+  const satOpen = 9 * 60 + 30;
+  const satClose = 13 * 60 + 30;
+  if (day >= 1 && day <= 5) return minutes >= weekdayOpen && minutes < weekdayClose;
+  if (day === 6) return minutes >= satOpen && minutes < satClose;
+  return false;
+}
+
+function initBusinessHoursBadge() {
+  const open = isWithinBusinessHours();
+  const quoteBadge = document.getElementById("quote-hours-badge");
+  const claimBadge = document.getElementById("claim-hours-badge");
+  const message = open
+    ? "We are open now — typical response within 15 minutes."
+    : "Outside business hours — we will respond on the next working day (Mon–Fri 8:30–17:00, Sat 9:30–13:30).";
+
+  [quoteBadge, claimBadge].forEach((badge) => {
+    if (!badge) return;
+    badge.textContent = message;
+    badge.classList.toggle("hours-badge--open", open);
+    badge.classList.toggle("hours-badge--closed", !open);
+  });
+}
+
+function focusFirstInvalidField(form) {
+  const firstInvalid = form.querySelector(":invalid");
+  if (!(firstInvalid instanceof HTMLElement)) return;
+  firstInvalid.classList.add("is-invalid");
+  firstInvalid.focus({ preventScroll: false });
+  firstInvalid.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "center" });
+}
+
+function initConversionTabs() {
+  const tablist = document.getElementById("conversion-tabs");
+  const quotePanel = document.getElementById("quote-form-panel");
+  const claimPanel = document.getElementById("claims-form");
+  if (!tablist || !quotePanel || !claimPanel) return;
+
+  const tabs = Array.from(tablist.querySelectorAll("[data-conversion-tab]"));
+  const mobileMq = window.matchMedia("(max-width: 1023px)");
+  let activeKey = "quote";
+
+  const activate = (key, scrollOnMobile = false) => {
+    activeKey = key;
+    const isQuote = key === "quote";
+
+    if (!mobileMq.matches) {
+      quotePanel.hidden = false;
+      claimPanel.hidden = false;
+      return;
+    }
+
+    tabs.forEach((tab) => {
+      const active = tab.getAttribute("data-conversion-tab") === key;
+      tab.classList.toggle("is-active", active);
+      tab.setAttribute("aria-selected", String(active));
+    });
+    quotePanel.hidden = !isQuote;
+    claimPanel.hidden = isQuote;
+
+    if (scrollOnMobile) {
+      const target = isQuote ? quotePanel : claimPanel;
+      const top = target.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET - 12;
+      window.scrollTo({ top: Math.max(top, 0), behavior: prefersReducedMotion ? "auto" : "smooth" });
+    }
+  };
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      activate(tab.getAttribute("data-conversion-tab") || "quote", true);
+    });
+  });
+
+  mobileMq.addEventListener("change", () => activate(activeKey));
+
+  const hash = window.location.hash.replace("#", "");
+  activate(hash === "claims-form" ? "claim" : "quote", false);
+}
+
+function initLandingFormFocus() {
+  const hash = window.location.hash.replace("#", "");
+  const params = new URLSearchParams(window.location.search);
+  const targetId = hash || (params.get("product") ? "quote" : "");
+  if (!targetId) return;
+
+  const target = document.getElementById(targetId);
+  if (!target) return;
+
+  window.setTimeout(() => {
+    if (hash === "claims-form") {
+      const claimTab = document.querySelector('[data-conversion-tab="claim"]');
+      claimTab?.click();
+    }
+
+    const card = target.closest(".form-card") || target;
+    card.classList.add("is-form-highlighted");
+    window.setTimeout(() => card.classList.remove("is-form-highlighted"), 2600);
+
+    const productField = document.getElementById("product");
+    if (params.get("product") && productField) {
+      const focusTarget = document.getElementById("phone") || document.getElementById("full-name");
+      focusTarget?.focus({ preventScroll: true });
+      return;
+    }
+
+    const focusMap = {
+      quote: "full-name",
+      "quote-form-panel": "full-name",
+      "claims-form": "policy-number"
+    };
+    const focusId = focusMap[targetId];
+    if (focusId) {
+      document.getElementById(focusId)?.focus({ preventScroll: true });
+    }
+  }, 280);
+}
+
+function initModalA11y() {
+  if (!leadModal) return;
+  const card = leadModal.querySelector(".lead-modal-card");
+  if (!card) return;
+
+  leadModal.addEventListener("keydown", (event) => {
+    if (event.key !== "Tab" || !leadModal.classList.contains("open")) return;
+    const focusable = leadModal.querySelectorAll("button, [href], [tabindex]:not([tabindex='-1'])");
+    const nodes = Array.from(focusable).filter((el) => el instanceof HTMLElement && !el.hasAttribute("disabled"));
+    if (!nodes.length) return;
+    const first = nodes[0];
+    const last = nodes[nodes.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+}
+
+function initStickyBarSmartHide() {
+  const bar = document.querySelector(".sticky-quote-bar");
+  if (!bar) return;
+
+  const suppressTargets = [
+    document.getElementById("quote"),
+    document.getElementById("claims-form"),
+    document.querySelector(".page-cta-block"),
+    document.querySelector(".cta-banner"),
+    document.querySelector(".site-footer")
+  ].filter(Boolean);
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const shouldSuppress = entries.some((entry) => entry.isIntersecting);
+      bar.classList.toggle("is-suppressed", shouldSuppress);
+    },
+    { rootMargin: "0px 0px -20% 0px", threshold: 0.08 }
+  );
+
+  suppressTargets.forEach((el) => observer.observe(el));
+}
+
+function initPhoneFieldHelper() {
+  const phone = document.getElementById("phone");
+  const claimPhone = document.getElementById("claim-contact");
+  [phone, claimPhone].forEach((field) => {
+    if (!field) return;
+    field.addEventListener("blur", () => {
+      const raw = field.value.replace(/\s+/g, "").trim();
+      if (/^0\d{9}$/.test(raw)) {
+        field.value = `+254${raw.slice(1)}`;
+      } else if (/^7\d{8}$/.test(raw)) {
+        field.value = `+254${raw}`;
+      }
+    });
+  });
+}
+
+function initChipActiveState() {
+  document.querySelectorAll(".chip-btn").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      chip.closest(".template-chips")?.querySelectorAll(".chip-btn").forEach((btn) => {
+        btn.classList.remove("is-active");
+      });
+      chip.classList.add("is-active");
+    });
+  });
+}
+
+function initExternalLinkSafety() {
+  document.querySelectorAll('a[target="_blank"]').forEach((link) => {
+    if (link.getAttribute("rel")?.includes("noopener")) return;
+    const rel = (link.getAttribute("rel") || "").trim();
+    link.setAttribute("rel", rel ? `${rel} noopener noreferrer` : "noopener noreferrer");
   });
 }
 
@@ -729,12 +971,15 @@ function initActiveNav() {
   const page = window.location.pathname.split("/").pop() || "index.html";
   if (page === "index.html" || page === "") return;
 
+  const claimsPages = new Set(["claims-support-kenya.html", "how-claims-work.html"]);
+
   mainNav.querySelectorAll("a").forEach((link) => {
     const href = link.getAttribute("href") || "";
     const linkPath = href.split("#")[0].split("?")[0];
     const matchesPage = linkPath === page || linkPath.endsWith(`/${page}`);
     const blogMatch = page === "blog-post.html" && href.includes("blog.html");
-    if (matchesPage || blogMatch) {
+    const claimsMatch = claimsPages.has(page) && href.includes("claims-support");
+    if (matchesPage || blogMatch || claimsMatch) {
       link.classList.add("is-active");
     }
   });
@@ -838,8 +1083,7 @@ function initGlobalChatbot() {
   }
 
   toggle.addEventListener("click", () => {
-    const isOpen = panel.classList.toggle("open");
-    panel.setAttribute("aria-hidden", String(!isOpen));
+    setChatbotOpen(!panel.classList.contains("open"));
   });
 }
 
@@ -922,7 +1166,14 @@ function initIntentMemory() {
     const match = Array.from(productField.options).find((option) => option.value === productFromUrl || option.text === productFromUrl);
     if (match) {
       productField.value = match.value;
+      productField.dispatchEvent(new Event("change", { bubbles: true }));
     }
+  }
+
+  if (params.get("intent") === "claim") {
+    window.setTimeout(() => {
+      document.querySelector('[data-conversion-tab="claim"]')?.click();
+    }, 200);
   }
 }
 
@@ -954,6 +1205,7 @@ function handleClaimSubmit(form, statusElement, successMessage, eventName, endpo
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!form.checkValidity()) {
+      focusFirstInvalidField(form);
       form.reportValidity();
       return;
     }
@@ -1169,6 +1421,7 @@ function handleLeadSubmit(form, statusElement, successMessage, eventName, endpoi
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     if (!form.checkValidity()) {
+      focusFirstInvalidField(form);
       form.reportValidity();
       return;
     }
@@ -1225,7 +1478,15 @@ initClaimAssistant();
 initDateDefaults();
 initFormEnhancements();
 initLeadModal();
+initModalA11y();
+initBusinessHoursBadge();
+initConversionTabs();
+initLandingFormFocus();
 initIntentMemory();
+initPhoneFieldHelper();
+initChipActiveState();
+initExternalLinkSafety();
+initStickyBarSmartHide();
 initSmoothAnchors();
 initScrollSpy();
 initBackToTop();
