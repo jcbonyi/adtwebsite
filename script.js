@@ -309,6 +309,14 @@ function initHeroVideo() {
   const toggle = document.getElementById("hero-video-toggle");
   if (!(video instanceof HTMLVideoElement) || !toggle) return;
 
+  const isMobile = window.matchMedia("(max-width: 767px)").matches;
+  if (isMobile) {
+    video.pause();
+    video.removeAttribute("autoplay");
+    toggle.hidden = true;
+    return;
+  }
+
   if (prefersReducedMotion) {
     video.removeAttribute("autoplay");
     video.pause();
@@ -726,6 +734,36 @@ function initActiveNav() {
   });
 }
 
+function initStickyQuoteBar() {
+  const page = window.location.pathname.split("/").pop() || "index.html";
+  if (page === "index.html" || page === "" || document.querySelector(".sticky-quote-bar")) return;
+
+  const bar = document.createElement("aside");
+  bar.className = "sticky-quote-bar";
+  bar.setAttribute("aria-label", "Quick quote actions");
+  bar.innerHTML = `
+    <div class="container sticky-quote-bar-inner">
+      <p>Need cover advice? Talk to ADT today.</p>
+      <div class="sticky-quote-bar-actions">
+        <a class="btn btn-primary btn-sm" href="index.html#quote">Get a Quote</a>
+        <a class="btn btn-outline btn-outline--light btn-sm" href="index.html#claims-form">Report Claim</a>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(bar);
+  document.body.classList.add("has-sticky-quote-bar");
+
+  let visible = false;
+  const onScroll = () => {
+    const show = window.scrollY > 480;
+    if (show === visible) return;
+    visible = show;
+    bar.classList.toggle("is-visible", show);
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+}
+
 function initPageCtaBar() {
   const footer = document.querySelector(".site-footer");
   if (
@@ -816,6 +854,8 @@ function initFooterContactLinks() {
 
 function initPageHeroActions() {
   document.querySelectorAll(".page-hero .container").forEach((container) => {
+    const heroSection = container.closest(".page-hero");
+    if (heroSection?.hasAttribute("data-hero-cta-minimal")) return;
     if (container.querySelector(".page-hero-actions")) return;
 
     const wrap = document.createElement("div");
@@ -1168,6 +1208,7 @@ initTurnstile(securityConfig.turnstileSiteKey);
 initGlobalChatbot();
 initActiveNav();
 initPageCtaBar();
+initStickyQuoteBar();
 initPageHeroActions();
 initFooterContactLinks();
 initHeroVariant();

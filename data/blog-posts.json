@@ -94,5 +94,69 @@
       "Analyse claims history and near-misses to adjust limits, deductibles, and cover extensions.",
       "Confirm board, lender, and contractual insurance requirements are reflected in policy wording before renewal."
     ]
+  },
+  {
+    "slug": "claim-document-quality-guide",
+    "title": "Claim document quality guide: what insurers expect on first submission",
+    "category": "Claims",
+    "readTime": "4 min read",
+    "excerpt": "Reduce avoidable delays with better first-submission documentation standards. A practical guide to photos, forms, and evidence insurers review first.",
+    "author": "ADT Claims Desk",
+    "publishedAt": "2026-05-20T00:00:00.000Z",
+    "image": "assets/images/solutions/solution-claims.png",
+    "content": [
+      "Start with clear incident facts: date, time, location, policy number, and a short description of what happened.",
+      "Attach legible photos of damage, scene context, and any third-party vehicles or property involved.",
+      "Include official reports where required — police abstract, fire report, or employer incident form for WIBA.",
+      "Submit repair estimates, invoices, or medical bills that match the incident date and description on your claim form."
+    ]
+  },
+  {
+    "slug": "motor-claim-timing-kenya",
+    "title": "When to report a motor claim in Kenya: timing that protects your cover",
+    "category": "Motor",
+    "readTime": "3 min read",
+    "excerpt": "Reporting windows and notification rules matter as much as documents. Know when to call your broker after a motor incident.",
+    "author": "ADT Motor Risk Team",
+    "publishedAt": "2026-05-22T00:00:00.000Z",
+    "image": "assets/images/solutions/solution-motor.png",
+    "content": [
+      "Notify your broker and insurer as soon as it is safe — ideally within 24 hours of the incident.",
+      "Do not move the vehicle from a serious accident scene until photos are taken and police attendance is documented where required.",
+      "Late notification can complicate assessment; record why any delay occurred if you could not report immediately.",
+      "ADT can triage your file on WhatsApp and confirm the exact documents needed before formal insurer submission."
+    ]
+  },
+  {
+    "slug": "wiba-documentation-checklist",
+    "title": "WIBA claim documents: employer checklist for faster workforce injury filing",
+    "category": "Compliance",
+    "readTime": "4 min read",
+    "excerpt": "Work injury claims stall when employer records are incomplete. Use this checklist before submitting to your insurer.",
+    "author": "ADT Compliance Desk",
+    "publishedAt": "2026-05-24T00:00:00.000Z",
+    "image": "assets/images/wiba-cover.jpg",
+    "content": [
+      "Maintain an up-to-date employee schedule with IDs, roles, and commencement dates aligned to your WIBA policy.",
+      "Complete the employer incident report within the timeframe required by your policy and labour regulations.",
+      "Gather medical reports, witness statements, and any DOSH notifications where the injury is reportable.",
+      "Submit through your broker with the policy number and a single internal contact for all insurer follow-up."
+    ]
+  },
+  {
+    "slug": "corporate-renewal-timeline",
+    "title": "Corporate insurance renewal timeline: 90, 60, and 30 days before expiry",
+    "category": "Corporate",
+    "readTime": "5 min read",
+    "excerpt": "A structured renewal calendar helps corporates avoid last-minute gaps, underinsurance, and board surprises at expiry.",
+    "author": "ADT Corporate Risk Desk",
+    "publishedAt": "2026-05-28T00:00:00.000Z",
+    "image": "assets/images/solutions/solution-corporate.png",
+    "content": [
+      "90 days out: refresh your risk register, claims history, and new assets, contracts, or locations from the past year.",
+      "60 days out: compare sums insured to replacement values and confirm lender or contractual insurance requirements.",
+      "30 days out: review draft schedules with your broker, close coverage gaps, and align board reporting if required.",
+      "At renewal: file signed schedules, payment instructions, and updated contact lists for claims and renewals."
+    ]
   }
 ]

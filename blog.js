@@ -23,6 +23,18 @@ function formatDate(dateInput) {
   });
 }
 
+function setMetaTag(name, content, isProperty = false) {
+  if (!content) return;
+  const attr = isProperty ? "property" : "name";
+  let node = document.querySelector(`meta[${attr}="${name}"]`);
+  if (!node) {
+    node = document.createElement("meta");
+    node.setAttribute(attr, name);
+    document.head.appendChild(node);
+  }
+  node.setAttribute("content", content);
+}
+
 function getServiceLinks(post) {
   const title = `${post.title} ${post.category}`.toLowerCase();
   const links = [];
@@ -83,6 +95,19 @@ async function renderBlogPost() {
   }
 
   document.title = `${post.title} | ADT Insurance Insights`;
+  const description = post.excerpt || post.title;
+  const image = post.image
+    ? new URL(post.image, window.location.href).href
+    : "https://adtinsurance.co.ke/assets/images/advisory-meeting.jpg";
+  setMetaTag("description", description);
+  setMetaTag("og:title", post.title, true);
+  setMetaTag("og:description", description, true);
+  setMetaTag("og:type", "article", true);
+  setMetaTag("og:image", image, true);
+  setMetaTag("twitter:card", "summary_large_image");
+  setMetaTag("twitter:title", post.title);
+  setMetaTag("twitter:description", description);
+  setMetaTag("twitter:image", image);
   if (postCategory) postCategory.textContent = post.category;
   postTitle.textContent = post.title;
   if (postMeta) postMeta.textContent = `${formatDate(post.publishedAt)} · ${post.readTime || "4 min read"} · ${post.author}`;

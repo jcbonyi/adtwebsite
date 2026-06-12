@@ -1116,7 +1116,13 @@ textarea:focus {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
+}
+
+.team-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
 }
 
 .team-card h3 {
@@ -2861,5 +2867,154 @@ body.menu-open::before {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Service cards — mobile horizontal scroll */
+.service-scroll-hint {
+  display: none;
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.service-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: center;
+  margin-top: auto;
+}
+
+.service-card-actions a:not(.service-whatsapp) {
+  font-weight: 600;
+  color: var(--blue-600);
+}
+
+.service-whatsapp {
+  font-size: 0.85rem;
+  color: var(--brand-green);
+  font-weight: 600;
+}
+
+.form-ira-badge {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+
+.testimonial-industry {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--brand-teal);
+  margin-bottom: 4px;
+}
+
+.testimonial-related {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--blue-600);
+  margin-top: 8px;
+}
+
+.resource-audience-block {
+  margin-bottom: 36px;
+}
+
+.resource-audience-block:last-child {
+  margin-bottom: 0;
+}
+
+.resource-audience-title {
+  margin: 0 0 16px;
+  font-size: 1.1rem;
+  color: var(--brand-charcoal);
+}
+
+.sticky-quote-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 90;
+  background: var(--brand-charcoal);
+  color: #fff;
+  padding: 10px 0;
+  transform: translateY(110%);
+  transition: transform var(--motion-base) var(--ease-standard);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.sticky-quote-bar.is-visible {
+  transform: translateY(0);
+}
+
+.sticky-quote-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sticky-quote-bar p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.sticky-quote-bar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-sm {
+  padding: 8px 14px;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 767px) {
+  .service-scroll-hint {
+    display: block;
+  }
+
+  .cards-grid--services {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 16px;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cards-grid--services .service-card {
+    min-width: 78%;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  .hero--video .hero-video {
+    display: none;
+  }
+
+  .hero--video .hero-media {
+    background-image: url("assets/images/hero-biz.png");
+    background-size: cover;
+    background-position: center;
+  }
+
+  .hero-video-toggle {
+    display: none;
+  }
+
+  body.has-sticky-quote-bar {
+    padding-bottom: 64px;
+  }
+
+  body.has-sticky-quote-bar .mobile-action-bar {
+    bottom: 56px;
   }
 }
