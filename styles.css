@@ -3933,3 +3933,80 @@ textarea.is-invalid {
     text-decoration: none;
   }
 }
+
+.quote-success-msg {
+  background: #f0faf3;
+  border-left: 4px solid #8CB450;
+  padding: 1.5rem;
+  border-radius: 6px;
+  color: #464646;
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+.quote-success-msg p {
+  margin: 0;
+}
+
+.team-initials-avatar {
+  width: clamp(104px, 16vw, 132px);
+  height: clamp(104px, 16vw, 132px);
+  background: linear-gradient(135deg, #1496BE, #8CB450);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  border: 2px solid rgba(20, 150, 190, 0.2);
+  box-shadow: 0 4px 16px rgba(15, 28, 58, 0.08);
+}
+
+.coverage-recommendation {
+  margin-top: 1.25rem;
+  background: #fff;
+  border: 1px solid #1496BE;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.coverage-recommendation h3 {
+  margin: 0 0 1rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+
+.coverage-pills {
+  margin-bottom: 1.25rem;
+}
+
+.coverage-pill {
+  background: #1496BE;
+  color: #fff;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  display: inline-block;
+  margin: 0.3rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.claims-ready-checklist {
+  background: #fff;
+  border-left: 4px solid #8CB450;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.claims-ready-checklist p {
+  margin: 0 0 0.65rem;
+  color: var(--brand-charcoal);
+}
+
+.claims-ready-checklist p:last-child {
+  margin-bottom: 0;
+}

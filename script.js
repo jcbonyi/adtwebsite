@@ -368,117 +368,45 @@ function initHeroVideo() {
   });
 }
 
-const COVERAGE_PRODUCT_PAGES = {
-  "Domestic Package Insurance": "domestic-package-insurance.html",
-  "Motor Insurance": "motor-insurance-mombasa.html",
-  "Medical Insurance": "medical-insurance-advisory.html",
-  WIBA: "blog-post.html?slug=wiba-compliance-kenya",
-  "Marine Insurance": "logistics-insurance-advisory.html",
-  "Business Insurance": "sme-insurance-kenya.html",
-  "Asset Insurance": "corporate-insurance-services.html",
-  "Travel Insurance": "index.html?product=Travel%20Insurance#quote",
-  "Liability Insurance": "corporate-insurance-services.html"
-};
+function showQuoteFormSuccess() {
+  const success = document.getElementById("quote-success");
+  const fieldsWrap = document.getElementById("quote-form-fields");
+  const form = document.getElementById("quote-form");
+  if (!success) return;
 
-const COVERAGE_RECOMMENDATIONS = {
-  individual: {
-    vehicle: ["Motor Insurance", "Travel Insurance"],
-    health: ["Medical Insurance"],
-    property: ["Domestic Package Insurance"],
-    cargo: ["Marine Insurance"],
-    workforce: ["WIBA"]
-  },
-  family: {
-    vehicle: ["Motor Insurance"],
-    health: ["Medical Insurance"],
-    property: ["Domestic Package Insurance"],
-    cargo: ["Marine Insurance"],
-    workforce: ["WIBA"]
-  },
-  business: {
-    vehicle: ["Motor Insurance", "Business Insurance"],
-    health: ["Medical Insurance"],
-    property: ["Business Insurance", "Asset Insurance"],
-    cargo: ["Marine Insurance", "Business Insurance"],
-    workforce: ["WIBA", "Liability Insurance"]
+  if (fieldsWrap) {
+    fieldsWrap.style.display = "none";
+  } else if (form) {
+    form.reset();
+    form.style.display = "none";
   }
-};
+
+  success.style.display = "block";
+  const top = success.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET - 12;
+  window.scrollTo({ top: Math.max(top, 0), behavior: prefersReducedMotion ? "auto" : "smooth" });
+}
 
 function initCoverageTool() {
   const widget = document.getElementById("coverage-tool-widget");
   if (!widget) return;
 
-  const steps = Array.from(widget.querySelectorAll(".coverage-tool-step"));
-  const dots = Array.from(widget.querySelectorAll(".coverage-tool-dot"));
-  const resultPanel = document.getElementById("coverage-tool-result");
-  const list = document.getElementById("coverage-tool-list");
-  const quoteBtn = document.getElementById("coverage-tool-quote");
-  const resetBtn = widget.querySelector(".coverage-tool-reset");
-  const state = { audience: "", priority: "", timing: "" };
-
-  const showStep = (index) => {
-    steps.forEach((step, i) => {
-      const active = i === index;
-      step.hidden = !active;
-      step.classList.toggle("is-active", active);
-    });
-    dots.forEach((dot, i) => dot.classList.toggle("is-active", i === index));
-    if (resultPanel) resultPanel.hidden = true;
+  const panels = {
+    individual: document.getElementById("coverage-rec-individual"),
+    family: document.getElementById("coverage-rec-family"),
+    business: document.getElementById("coverage-rec-business")
   };
 
-  const showResult = () => {
-    const products = COVERAGE_RECOMMENDATIONS[state.audience]?.[state.priority] || ["Business Insurance"];
-    if (state.timing === "review" && !products.includes("Liability Insurance")) {
-      products.push("Liability Insurance");
-    }
-
-    if (list) {
-      list.innerHTML = products
-        .map((product) => {
-          const page = COVERAGE_PRODUCT_PAGES[product];
-          const learn = page ? ` — <a href="${page}">Learn more</a>` : "";
-          return `<li><strong>${product}</strong>${learn}</li>`;
-        })
-        .join("");
-    }
-
-    if (quoteBtn && products[0]) {
-      quoteBtn.href = `index.html?product=${encodeURIComponent(products[0])}#quote`;
-    }
-
-    steps.forEach((step) => {
-      step.hidden = true;
-    });
-    dots.forEach((dot) => dot.classList.add("is-active"));
-    if (resultPanel) resultPanel.hidden = false;
-  };
-
-  widget.querySelectorAll(".coverage-option").forEach((button) => {
+  widget.querySelectorAll(".coverage-option[data-audience]").forEach((button) => {
     button.addEventListener("click", () => {
-      const step = button.closest(".coverage-tool-step");
-      if (!step) return;
-      const stepIndex = steps.indexOf(step);
-      const field = ["audience", "priority", "timing"][stepIndex];
-      if (!field) return;
-
-      state[field] = button.dataset.value || "";
-      step.querySelectorAll(".coverage-option").forEach((option) => option.classList.remove("is-selected"));
-      button.classList.add("is-selected");
-
-      if (stepIndex < steps.length - 1) {
-        window.setTimeout(() => showStep(stepIndex + 1), 200);
-        return;
-      }
-      showResult();
+      const audience = button.dataset.audience;
+      widget.querySelectorAll(".coverage-option[data-audience]").forEach((option) => {
+        option.classList.toggle("is-selected", option === button);
+      });
+      Object.entries(panels).forEach(([key, panel]) => {
+        if (!panel) return;
+        panel.hidden = key !== audience;
+      });
     });
-  });
-
-  resetBtn?.addEventListener("click", () => {
-    state.audience = "";
-    state.priority = "";
-    state.timing = "";
-    widget.querySelectorAll(".coverage-option").forEach((option) => option.classList.remove("is-selected"));
-    showStep(0);
   });
 }
 
@@ -1555,6 +1483,10 @@ function handleLeadSubmit(form, statusElement, successMessage, eventName, endpoi
     const defaultButtonText = button ? button.textContent : "Request Quote";
     setSubmitBusy(button, true, "Opening WhatsApp...", defaultButtonText);
     setFormStatus(statusElement, "");
+
+    if (form.id === "quote-form") {
+      showQuoteFormSuccess();
+    }
 
     const formData = new FormData(form);
     const payload = normalizeFormData(formData);

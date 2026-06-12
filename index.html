@@ -38,16 +38,16 @@
       </a>
       <button class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="main-nav">Menu</button>
       <nav id="main-nav" class="main-nav">
-        <a href="#services">Insurance Products</a>
-        <a href="#claims">Claims Support</a>
-        <a href="#insurance-products">Our Offerings</a>
+        <a href="index.html#services">Insurance Products</a>
+        <a href="claims-support-kenya.html">Claims Support</a>
+        <a href="index.html#insurance-products">Our Offerings</a>
         <a href="corporate-insurance-services.html">Corporate</a>
-        <a href="#why-adt">Why ADT</a>
+        <a href="index.html#why-adt">Why ADT</a>
         <a href="blog.html">Insights</a>
         <a href="resources.html">Help Center</a>
-        <a href="#contact-hub">Contact</a>
+        <a href="index.html#contact-hub">Contact</a>
       </nav>
-      <a class="btn btn-primary nav-cta" href="#quote">Get a Quote</a>
+      <a class="btn btn-primary nav-cta" href="index.html#quote">Get a Quote</a>
     </div>
   </header>
 
@@ -648,7 +648,7 @@
             <a class="text-link team-whatsapp" href="https://wa.me/254711533245?text=Hello%20Naomi%2C%20I%20would%20like%20to%20speak%20with%20ADT%20about%20insurance%20advisory." target="_blank" rel="noopener">Reach on WhatsApp</a>
           </article>
           <article class="team-card">
-            <span class="team-avatar" style="--avatar-bg:#1496BE" aria-hidden="true">ZY</span>
+            <div class="team-initials-avatar" aria-label="Zayan Din photo placeholder">ZY</div>
             <h3>Zayan Din</h3>
             <p class="team-title">Management Trainee</p>
             <p>Management trainee supporting leadership across business development, client service, and operational excellence initiatives.</p>
@@ -663,47 +663,46 @@
         <div class="section-head section-head--center">
           <p class="eyebrow">Coverage Finder</p>
           <h2 id="coverage-tool-heading">Which insurance fits your situation?</h2>
-          <p class="section-lead">Answer three quick questions for tailored product suggestions — then jump straight to your quote.</p>
+          <p class="section-lead">Select who needs cover — we will suggest products and link you straight to a quote.</p>
         </div>
         <div class="coverage-tool" id="coverage-tool-widget">
-          <div class="coverage-tool-progress" aria-hidden="true">
-            <span class="coverage-tool-dot is-active"></span>
-            <span class="coverage-tool-dot"></span>
-            <span class="coverage-tool-dot"></span>
-          </div>
-          <fieldset class="coverage-tool-step is-active" data-step="1">
+          <fieldset class="coverage-tool-step is-active">
             <legend>Who needs cover?</legend>
             <div class="coverage-tool-options">
-              <button type="button" class="coverage-option" data-value="individual">Individual</button>
-              <button type="button" class="coverage-option" data-value="family">Family / household</button>
-              <button type="button" class="coverage-option" data-value="business">Business or employer</button>
+              <button type="button" class="coverage-option" data-audience="individual">Individual</button>
+              <button type="button" class="coverage-option" data-audience="family">Family / household</button>
+              <button type="button" class="coverage-option" data-audience="business">Business or employer</button>
             </div>
           </fieldset>
-          <fieldset class="coverage-tool-step" data-step="2" hidden>
-            <legend>What is your top priority?</legend>
-            <div class="coverage-tool-options">
-              <button type="button" class="coverage-option" data-value="vehicle">Vehicles &amp; transport</button>
-              <button type="button" class="coverage-option" data-value="health">Health &amp; medical</button>
-              <button type="button" class="coverage-option" data-value="property">Property &amp; assets</button>
-              <button type="button" class="coverage-option" data-value="cargo">Cargo &amp; logistics</button>
-              <button type="button" class="coverage-option" data-value="workforce">Employees &amp; compliance</button>
-            </div>
-          </fieldset>
-          <fieldset class="coverage-tool-step" data-step="3" hidden>
-            <legend>When do you need cover?</legend>
-            <div class="coverage-tool-options">
-              <button type="button" class="coverage-option" data-value="urgent">Immediately — incident or renewal due</button>
-              <button type="button" class="coverage-option" data-value="planning">Comparing options for next month</button>
-              <button type="button" class="coverage-option" data-value="review">Annual review of existing policies</button>
-            </div>
-          </fieldset>
-          <div class="coverage-tool-result" id="coverage-tool-result" hidden>
+          <div class="coverage-recommendation" id="coverage-rec-individual" hidden>
             <h3>Recommended for you</h3>
-            <ul class="coverage-tool-list" id="coverage-tool-list"></ul>
-            <div class="coverage-tool-actions">
-              <a class="btn btn-primary" href="#quote" id="coverage-tool-quote">Start your quote</a>
-              <button type="button" class="btn btn-outline coverage-tool-reset">Start over</button>
+            <div class="coverage-pills">
+              <span class="coverage-pill">Medical Insurance</span>
+              <span class="coverage-pill">Motor Insurance</span>
+              <span class="coverage-pill">Travel Insurance</span>
+              <span class="coverage-pill">Domestic Package</span>
             </div>
+            <a class="btn btn-primary" href="index.html?product=Medical%20Insurance#quote">Get Individual Quote</a>
+          </div>
+          <div class="coverage-recommendation" id="coverage-rec-family" hidden>
+            <h3>Recommended for you</h3>
+            <div class="coverage-pills">
+              <span class="coverage-pill">Domestic Package Insurance</span>
+              <span class="coverage-pill">Medical Insurance</span>
+              <span class="coverage-pill">WIBA (if employing domestic staff)</span>
+            </div>
+            <a class="btn btn-primary" href="index.html#quote">Get Family Quote</a>
+          </div>
+          <div class="coverage-recommendation" id="coverage-rec-business" hidden>
+            <h3>Recommended for you</h3>
+            <div class="coverage-pills">
+              <span class="coverage-pill">WIBA</span>
+              <span class="coverage-pill">Business Insurance</span>
+              <span class="coverage-pill">Liability Insurance</span>
+              <span class="coverage-pill">Motor / Fleet</span>
+              <span class="coverage-pill">Asset Insurance</span>
+            </div>
+            <a class="btn btn-primary" href="index.html#quote">Get Business Quote</a>
           </div>
         </div>
       </div>
@@ -720,7 +719,8 @@
         <article class="form-card form-card--quote" id="quote-form-panel" role="tabpanel" aria-labelledby="conversion-tab-quote">
           <h2>Get a Quick Quote</h2>
           <p>Share your details below. One of our advisors will respond within 10 minutes during business hours.</p>
-          <p class="form-ira-badge">Licensed Insurance Broker | IRA Reg. No. <span class="ira-reg-placeholder">[IRA-REG-PLACEHOLDER]</span></p>
+          <p class="form-ira-badge">Licensed Insurance Broker | IRA Reg. No. <span class="ira-reg-placeholder">IRA/BRK/053</span></p>
+          <div id="quote-form-fields">
           <p class="form-reassurance">Your details are used only to process your advisory request.</p>
           <p class="hours-badge" id="quote-hours-badge" aria-live="polite"></p>
           <div class="template-chips" aria-label="Quick start — tap to pre-fill">
@@ -769,6 +769,10 @@
             <div class="turnstile-slot" data-turnstile-form="quote"></div>
           </form>
           <p id="quote-status" class="form-status" aria-live="polite"></p>
+          </div>
+          <div id="quote-success" style="display:none;" class="quote-success-msg">
+            <p>✅ Thank you — your request has been received. An ADT advisor will contact you within 10 minutes during business hours via call or WhatsApp.</p>
+          </div>
           <div class="next-steps">
             <h3>What happens next?</h3>
             <p>1) We review your risk needs, 2) assign an advisor, 3) contact you through call or WhatsApp within business hours.</p>
@@ -996,7 +1000,7 @@
       </div>
     </div>
     <p class="copyright">&copy; <span id="year"></span> ADT Africa Insurance Brokers Ltd. All rights reserved.</p>
-    <p class="footer-regulatory">Licensed Insurance Broker | Regulated by the Insurance Regulatory Authority of Kenya (IRA) | Reg. No. <span class="ira-reg-placeholder">[IRA-REG-PLACEHOLDER]</span></p>
+    <p class="footer-regulatory">Licensed Insurance Broker | Regulated by the Insurance Regulatory Authority of Kenya (IRA) | Reg. No. <span class="ira-reg-placeholder">IRA/BRK/053</span></p>
   </footer>
 
   <a class="whatsapp-float" href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20help%20with%20insurance." target="_blank" rel="noopener" aria-label="Chat on WhatsApp" data-track="cta_whatsapp_float">
