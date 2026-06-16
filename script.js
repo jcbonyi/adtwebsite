@@ -96,7 +96,10 @@ function setChatbotOpen(isOpen) {
   panel.classList.toggle("open", isOpen);
   panel.setAttribute("aria-hidden", String(!isOpen));
   if (isOpen) {
-    const firstAction = panel.querySelector(".chatbot-close, .btn");
+    if (typeof waChatbotStart === "function") {
+      waChatbotStart();
+    }
+    const firstAction = panel.querySelector(".chatbot-close, .wa-chatbot-chip, .wa-chatbot-cta");
     if (firstAction instanceof HTMLElement) {
       firstAction.focus();
     }
@@ -1105,23 +1108,32 @@ function initGlobalChatbot() {
   toggle.id = "chatbot-toggle";
   toggle.className = "chatbot-toggle";
   toggle.type = "button";
-  toggle.setAttribute("aria-label", "Chat with us on WhatsApp");
-  toggle.textContent = "Chat";
+  toggle.setAttribute("aria-label", "Open WhatsApp chat assistant");
+  toggle.textContent = "WhatsApp";
 
   const panel = document.createElement("aside");
   panel.id = "chatbot-panel";
-  panel.className = "chatbot-panel";
+  panel.className = "chatbot-panel wa-chatbot";
   panel.setAttribute("aria-hidden", "true");
+  panel.setAttribute("aria-label", "ADT WhatsApp chat assistant");
   panel.innerHTML = `
-    <div class="chatbot-panel-header">
-      <h3>Chat with us on WhatsApp</h3>
+    <div class="chatbot-panel-header wa-chatbot-header">
+      <div class="wa-chatbot-brand">
+        <span class="wa-chatbot-avatar" aria-hidden="true">ADT</span>
+        <div>
+          <h3>ADT Advisor</h3>
+          <span class="wa-chatbot-status" id="wa-chatbot-status">Online · replies in ~5 min</span>
+        </div>
+      </div>
       <button type="button" class="chatbot-close" aria-label="Close chat panel">&times;</button>
     </div>
-    <p>We typically reply within 5 minutes during business hours.</p>
-    <div class="chat-actions">
-      <a href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20a%20quote." class="btn btn-primary" target="_blank" rel="noopener" data-track="cta_whatsapp_chat_quote">Get a Quote</a>
-      <a href="https://wa.me/254785227772?text=Hello%20ADT%2C%20I%20need%20to%20report%20a%20claim." class="btn btn-secondary" target="_blank" rel="noopener" data-track="cta_whatsapp_chat_claim">Report a Claim</a>
+    <div class="wa-chatbot-messages" id="wa-chatbot-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+    <div class="wa-chatbot-compose" id="wa-chatbot-compose" hidden>
+      <label class="visually-hidden" for="wa-chatbot-text">Your reply</label>
+      <input type="text" id="wa-chatbot-text" class="wa-chatbot-text" placeholder="Ask about a product, e.g. motor, WIBA, medical…" maxlength="240" autocomplete="off">
+      <button type="button" class="wa-chatbot-send" id="wa-chatbot-send" aria-label="Send message">Send</button>
     </div>
+    <div class="wa-chatbot-actions" id="wa-chatbot-actions"></div>
   `;
 
   document.body.appendChild(toggle);
@@ -1129,15 +1141,1198 @@ function initGlobalChatbot() {
 
   const injectedClose = panel.querySelector(".chatbot-close");
   if (injectedClose) {
-    injectedClose.addEventListener("click", () => {
-      panel.classList.remove("open");
-      panel.setAttribute("aria-hidden", "true");
-    });
+    injectedClose.addEventListener("click", () => setChatbotOpen(false));
   }
 
   toggle.addEventListener("click", () => {
     setChatbotOpen(!panel.classList.contains("open"));
   });
+}
+
+const WA_CHATBOT_NUMBERS = {
+  business: "254711533245",
+  claims: "254785227772"
+};
+
+const WA_CHATBOT_STORAGE_KEY = "adt_wa_chatbot_prefs";
+
+const WA_EDUCATION_CATEGORIES = {
+  personal: {
+    label: "Personal & Family",
+    intro: "Protection for your health, home, vehicles, and travel.",
+    products: ["Domestic Package Insurance", "Medical Insurance", "Motor Insurance", "Travel Insurance"]
+  },
+  business: {
+    label: "Business & Employers",
+    intro: "Cover for SMEs, corporates, employees, and liability exposure.",
+    products: ["Business Insurance", "WIBA", "Liability Insurance", "Asset Insurance"]
+  },
+  logistics: {
+    label: "Transport & Logistics",
+    intro: "Fleet motor, cargo, and goods-in-transit along Kenyan corridors.",
+    products: ["Motor Insurance", "Marine Insurance", "Business Insurance"]
+  }
+};
+
+const WA_PRODUCT_KNOWLEDGE = {
+  "Motor Insurance": {
+    keywords: ["motor", "car", "vehicle", "fleet", "psv", "matatu", "driving", "comprehensive", "third party"],
+    category: "personal",
+    summary: "Private, commercial, fleet, and PSV cover with guided claims filing, police abstract support, and renewal reminders.",
+    whoFor: "Individuals with personal cars, businesses with delivery fleets, PSV operators, and logistics companies moving goods by road.",
+    covers: [
+      "Own damage, fire, and theft (comprehensive)",
+      "Third-party injury and property damage",
+      "Fleet consolidation for multiple vehicles",
+      "PSV cover aligned to NTSA requirements"
+    ],
+    goodToKnow: [
+      "Comprehensive cover protects your vehicle; third-party only meets minimum legal requirements.",
+      "Claims are often delayed by missing scene photos or police abstracts — ADT provides a pre-claim checklist.",
+      "Business use of a personal vehicle usually needs commercial motor cover, not a private policy."
+    ],
+    faq: [
+      { q: "Comprehensive vs third-party?", a: "Comprehensive covers your vehicle plus third parties. Third-party only covers damage you cause to others — it is the legal minimum." },
+      { q: "When should I report an accident?", a: "Immediately — photograph the scene before vehicles move, then contact ADT's claims desk the same day." }
+    ],
+    relatedProducts: ["Liability Insurance", "Business Insurance"],
+    pageLink: "motor-insurance-mombasa.html",
+    detailQuestion: "Is this for a personal vehicle, business fleet, or PSV?",
+    detailOptions: [
+      { label: "Personal vehicle", value: "Private motor" },
+      { label: "Business / fleet", value: "Commercial fleet" },
+      { label: "PSV / matatu", value: "PSV" }
+    ],
+    tip: "Tip: After an accident, photograph damage, plates, and the scene before moving vehicles."
+  },
+  "Medical Insurance": {
+    keywords: ["medical", "health", "hospital", "inpatient", "outpatient", "maternity", "nhif"],
+    category: "personal",
+    summary: "Inpatient, outpatient, and maternity plans for individuals, families, and employee groups with provider network access.",
+    whoFor: "Individuals, families, and employers who want structured access to hospitals and clinics without large out-of-pocket bills.",
+    covers: [
+      "Inpatient admission and surgery",
+      "Outpatient consultations and diagnostics",
+      "Maternity and chronic condition options",
+      "Group schemes for employee teams"
+    ],
+    goodToKnow: [
+      "Group medical helps SMEs attract and retain staff with a tangible benefit.",
+      "Provider networks vary by insurer — ADT matches plans to hospitals you actually use.",
+      "Pre-existing conditions may have waiting periods depending on the underwriter."
+    ],
+    faq: [
+      { q: "Individual vs group medical?", a: "Individual/family plans cover your household. Group medical is employer-sponsored cover for staff, usually more cost-effective per person." },
+      { q: "Does NHIF replace medical insurance?", a: "No — NHIF is a statutory fund with limited scope. Private medical insurance provides broader inpatient and outpatient access." }
+    ],
+    relatedProducts: ["WIBA", "Business Insurance"],
+    pageLink: "medical-insurance-advisory.html",
+    detailQuestion: "Who needs medical cover?",
+    detailOptions: [
+      { label: "Just me", value: "Individual" },
+      { label: "Family", value: "Family plan" },
+      { label: "Staff / team", value: "Group medical" }
+    ],
+    tip: "Tip: Group medical helps SMEs attract and retain staff with structured inpatient and outpatient benefits."
+  },
+  "Domestic Package Insurance": {
+    keywords: ["home", "house", "domestic", "contents", "building", "fire", "burglary"],
+    category: "personal",
+    summary: "Home protection for buildings, contents, domestic staff liability, and personal effects under one policy.",
+    whoFor: "Homeowners, tenants with valuable contents, and families who want one renewal for property and belongings.",
+    covers: [
+      "Building structure against fire and natural perils",
+      "Household contents and personal effects",
+      "Theft and forced entry",
+      "Alternative accommodation after insured damage",
+      "Domestic staff liability extensions"
+    ],
+    goodToKnow: [
+      "Buildings and contents can be insured together or separately — a package is usually simpler to manage.",
+      "Under-insuring contents is common — review sums insured when you buy new items.",
+      "Landlord buildings cover differs from tenant contents-only cover."
+    ],
+    faq: [
+      { q: "Do tenants need domestic package?", a: "Tenants typically insure contents and liability; building structure is the landlord's responsibility unless your lease says otherwise." },
+      { q: "Are domestic workers covered?", a: "Many domestic packages include employer liability for household staff — ask ADT to confirm limits for your policy." }
+    ],
+    relatedProducts: ["Liability Insurance", "Medical Insurance"],
+    pageLink: "domestic-package-insurance.html",
+    detailQuestion: "What do you need to protect most?",
+    detailOptions: [
+      { label: "Building structure", value: "Buildings cover" },
+      { label: "Contents & belongings", value: "Contents cover" },
+      { label: "Both building & contents", value: "Full domestic package" }
+    ],
+    tip: "Tip: Domestic package can bundle fire, theft, and alternative accommodation in one renewal."
+  },
+  "Business Insurance": {
+    keywords: ["business", "sme", "shop", "retail", "office", "stock", "fire", "burglary"],
+    category: "business",
+    summary: "Property, stock, interruption, and liability protection structured for growing Kenyan businesses.",
+    whoFor: "Shops, offices, warehouses, and service businesses with premises, stock, or equipment to protect.",
+    covers: [
+      "Fire, burglary, and stock losses",
+      "Business interruption for lost income",
+      "Public liability for third-party injury",
+      "Office contents and equipment"
+    ],
+    goodToKnow: [
+      "Many SMEs undervalue stock on policy schedules — ADT aligns sums insured to actual inventory.",
+      "Business interruption is often overlooked — it covers fixed costs when you cannot trade after a fire or flood.",
+      "A personal motor policy does not cover vehicles used for deliveries or sales calls."
+    ],
+    faq: [
+      { q: "What does a typical SME bundle include?", a: "Often fire & burglary for premises/stock, WIBA for employees, and commercial motor for delivery vehicles — packaged with one renewal date." },
+      { q: "When should an SME review cover?", a: "Before every renewal and whenever you add staff, stock, vehicles, or a new location." }
+    ],
+    relatedProducts: ["WIBA", "Liability Insurance", "Motor Insurance"],
+    pageLink: "sme-insurance-kenya.html",
+    detailQuestion: "What best describes your business?",
+    detailOptions: [
+      { label: "Retail / shop", value: "Retail SME" },
+      { label: "Office / services", value: "Office-based business" },
+      { label: "Warehouse / logistics", value: "Logistics or warehouse" }
+    ],
+    tip: "Tip: Many SMEs undervalue stock — we align sums insured to your actual inventory before renewal."
+  },
+  WIBA: {
+    keywords: ["wiba", "work injury", "employee", "employer", "compliance", "workforce"],
+    category: "business",
+    summary: "Mandatory Work Injury Benefits Act cover for employers, including employee schedules and renewal updates.",
+    whoFor: "Any employer in Kenya with one or more employees — statutory requirement under the Work Injury Benefits Act.",
+    covers: [
+      "Compensation for work-related injury or death",
+      "Employer legal compliance with WIBA",
+      "Employee schedule listing and updates",
+      "Renewal management aligned to headcount"
+    ],
+    goodToKnow: [
+      "WIBA is mandatory — operating without it exposes employers to penalties and personal liability.",
+      "Schedules must reflect current employees — outdated headcounts cause claims disputes.",
+      "WIBA covers work injury; it is not a substitute for group medical insurance."
+    ],
+    faq: [
+      { q: "Who must have WIBA?", a: "Every employer in Kenya with employees, including domestic employers in some arrangements — ADT confirms your specific obligation." },
+      { q: "WIBA vs medical insurance?", a: "WIBA compensates work-related injuries. Medical insurance covers general health treatment for staff." }
+    ],
+    relatedProducts: ["Business Insurance", "Liability Insurance", "Medical Insurance"],
+    pageLink: "blog-post.html?slug=wiba-compliance-kenya",
+    detailQuestion: "How many employees do you have?",
+    detailOptions: [
+      { label: "1–5 employees", value: "1-5 employees" },
+      { label: "6–20 employees", value: "6-20 employees" },
+      { label: "21+ employees", value: "21+ employees" }
+    ],
+    tip: "Tip: WIBA schedules must match your current headcount — ADT manages updates at renewal."
+  },
+  "Marine Insurance": {
+    keywords: ["marine", "cargo", "import", "export", "port", "transit", "logistics", "goods"],
+    category: "logistics",
+    summary: "Cargo and goods-in-transit cover for importers, exporters, and logistics operators via Mombasa and inland corridors.",
+    whoFor: "Importers, exporters, freight forwarders, and distributors moving stock through port, road, or warehouse legs.",
+    covers: [
+      "Sea and air cargo in transit",
+      "Goods in transit inland from port to warehouse",
+      "Loss, damage, and theft during shipment",
+      "Survey and port incident documentation support"
+    ],
+    goodToKnow: [
+      "Port-to-warehouse legs are a common uninsured gap — each transit stage should be mapped.",
+      "Marine claims need prompt incident documentation at port or depot.",
+      "Invoice value and Incoterms affect how sums insured are calculated."
+    ],
+    faq: [
+      { q: "Is marine only for ships?", a: "Marine insurance covers cargo in transit by sea, air, and often inland legs — not just ocean vessels." },
+      { q: "When should cargo be insured?", a: "From the moment goods become your risk — often from port arrival or ex-warehouse, depending on your trade terms." }
+    ],
+    relatedProducts: ["Business Insurance", "Motor Insurance", "Liability Insurance"],
+    pageLink: "logistics-insurance-advisory.html",
+    detailQuestion: "What are you shipping?",
+    detailOptions: [
+      { label: "Imported goods", value: "Import cargo" },
+      { label: "Exported goods", value: "Export cargo" },
+      { label: "Local transit", value: "Goods in transit" }
+    ],
+    tip: "Tip: Port-to-warehouse legs are often uninsured gaps — we map each transit stage."
+  },
+  "Travel Insurance": {
+    keywords: ["travel", "trip", "flight", "abroad", "visa", "holiday"],
+    category: "personal",
+    summary: "Emergency medical abroad, trip cancellation, and baggage protection for personal and business travel.",
+    whoFor: "Leisure travellers, business travellers, students, and anyone needing emergency medical cover outside Kenya.",
+    covers: [
+      "Emergency medical treatment abroad",
+      "Trip cancellation and curtailment",
+      "Lost or delayed baggage",
+      "Personal liability overseas"
+    ],
+    goodToKnow: [
+      "Schengen and some visa applications require minimum medical limits — confirm before you apply.",
+      "Travel cover is for trips abroad; it does not replace your domestic medical policy.",
+      "Declare pre-existing conditions accurately to avoid claim rejection."
+    ],
+    faq: [
+      { q: "Is travel insurance required for visas?", a: "Many Schengen visas require proof of travel medical cover — ADT confirms limits that meet embassy requirements." },
+      { q: "Does it cover trip cancellation?", a: "Most plans include cancellation for covered reasons — check policy wording for specific triggers and limits." }
+    ],
+    relatedProducts: ["Medical Insurance", "Motor Insurance"],
+    pageLink: "index.html?product=Travel%20Insurance#quote",
+    detailQuestion: "What type of trip is this?",
+    detailOptions: [
+      { label: "Leisure travel", value: "Leisure trip" },
+      { label: "Business travel", value: "Business trip" },
+      { label: "Student / long stay", value: "Extended stay" }
+    ],
+    tip: "Tip: Travel cover is often required for Schengen visas — we confirm limits before you fly."
+  },
+  "Liability Insurance": {
+    keywords: ["liability", "indemnity", "professional", "public liability", "legal"],
+    category: "business",
+    summary: "Public, product, and professional indemnity cover for client-facing and contractual risk.",
+    whoFor: "Businesses interacting with the public, manufacturers, consultancies, engineers, and service firms with contractual liability requirements.",
+    covers: [
+      "Third-party bodily injury on your premises",
+      "Property damage caused to others",
+      "Professional advice errors (professional indemnity)",
+      "Product liability for goods you sell or supply"
+    ],
+    goodToKnow: [
+      "Contractual liability limits should match what clients require in tenders and agreements.",
+      "Public liability is separate from WIBA — WIBA covers employees; public liability covers third parties.",
+      "Professional indemnity is critical for advisors, engineers, and consultants."
+    ],
+    faq: [
+      { q: "Public vs professional liability?", a: "Public liability covers injury or damage to third parties on your premises or from operations. Professional indemnity covers financial loss from your advice or services." },
+      { q: "Do small businesses need liability cover?", a: "Yes — a single injury claim on your premises or from your product can exceed an SME's cash reserves." }
+    ],
+    relatedProducts: ["Business Insurance", "WIBA", "Asset Insurance"],
+    pageLink: "corporate-insurance-services.html",
+    detailQuestion: "What liability exposure concerns you?",
+    detailOptions: [
+      { label: "Third-party injury", value: "Public liability" },
+      { label: "Professional advice", value: "Professional indemnity" },
+      { label: "Product-related claims", value: "Product liability" }
+    ],
+    tip: "Tip: Contractual liability limits should match what your clients require in agreements."
+  },
+  "Asset Insurance": {
+    keywords: ["asset", "machinery", "equipment", "plant", "electronics", "breakdown"],
+    category: "business",
+    summary: "Plant, machinery, electronics, and operational assets covered against breakdown, theft, and accidental damage.",
+    whoFor: "Manufacturers, construction firms, farms, and operations teams with plant, machinery, or high-value equipment.",
+    covers: [
+      "Plant and machinery against damage",
+      "Electronics and IT equipment",
+      "Theft and accidental damage",
+      "Optional breakdown extensions"
+    ],
+    goodToKnow: [
+      "Standard fire policies may not cover mechanical breakdown — extensions can be added.",
+      "Sums insured should reflect replacement cost, not book value.",
+      "Asset registers help speed up claims after a loss."
+    ],
+    faq: [
+      { q: "Asset vs business insurance?", a: "Business insurance often covers premises and stock. Asset insurance focuses on machinery, plant, and equipment specifically." },
+      { q: "Does it cover breakdown?", a: "Breakdown cover is usually an extension — ADT structures it based on your equipment type and age." }
+    ],
+    relatedProducts: ["Business Insurance", "Liability Insurance", "Marine Insurance"],
+    pageLink: "corporate-insurance-services.html",
+    detailQuestion: "What assets need cover?",
+    detailOptions: [
+      { label: "Machinery / plant", value: "Plant and machinery" },
+      { label: "IT & electronics", value: "Electronics" },
+      { label: "Mixed operational assets", value: "Mixed assets" }
+    ],
+    tip: "Tip: Breakdown extensions can be added where standard fire policies do not cover mechanical failure."
+  }
+};
+
+const waChatbotState = {
+  step: "menu",
+  intent: "",
+  audience: "",
+  product: "",
+  productDetail: "",
+  claimType: "",
+  name: "",
+  phone: "",
+  composeHandler: null
+};
+
+function waChatbotEl(id) {
+  return document.getElementById(id);
+}
+
+function waChatbotGetPrefs() {
+  try {
+    const raw = localStorage.getItem(WA_CHATBOT_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (_error) {
+    return {};
+  }
+}
+
+function waChatbotSavePrefs(patch) {
+  const next = { ...waChatbotGetPrefs(), ...patch, updatedAt: Date.now() };
+  try {
+    localStorage.setItem(WA_CHATBOT_STORAGE_KEY, JSON.stringify(next));
+  } catch (_error) {
+    /* storage unavailable */
+  }
+}
+
+function waChatbotGetHoursMessage() {
+  if (isWithinBusinessHours()) {
+    return "We're open now — advisors typically reply within 15 minutes on WhatsApp.";
+  }
+  return "We're outside business hours (Mon–Fri 8:30–17:00, Sat 9:30–13:30). You can still message us on WhatsApp and we'll respond on the next working day.";
+}
+
+function waChatbotUpdateHeaderStatus() {
+  const status = waChatbotEl("wa-chatbot-status") || document.querySelector(".wa-chatbot-status");
+  if (!status) return;
+  const open = isWithinBusinessHours();
+  status.textContent = open ? "Online · replies in ~15 min" : "Away · next working day";
+  status.classList.toggle("wa-chatbot-status--open", open);
+  status.classList.toggle("wa-chatbot-status--closed", !open);
+}
+
+function waChatbotScrollToBottom() {
+  const messages = waChatbotEl("wa-chatbot-messages");
+  if (!messages) return;
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function waChatbotAddMessage(text, role = "bot", extraClass = "") {
+  const messages = waChatbotEl("wa-chatbot-messages");
+  if (!messages) return;
+
+  const row = document.createElement("div");
+  row.className = `wa-chatbot-msg wa-chatbot-msg--${role}${extraClass ? ` ${extraClass}` : ""}`;
+
+  const bubble = document.createElement("div");
+  bubble.className = "wa-chatbot-bubble";
+  bubble.textContent = text;
+
+  row.appendChild(bubble);
+  messages.appendChild(row);
+  waChatbotScrollToBottom();
+}
+
+function waChatbotClearActions() {
+  const actions = waChatbotEl("wa-chatbot-actions");
+  if (actions) actions.innerHTML = "";
+}
+
+function waChatbotResetComposeHandler() {
+  waChatbotState.composeHandler = null;
+}
+
+function waChatbotHideCompose() {
+  const compose = waChatbotEl("wa-chatbot-compose");
+  const input = waChatbotEl("wa-chatbot-text");
+  if (compose) compose.hidden = true;
+  if (input) input.value = "";
+  waChatbotResetComposeHandler();
+}
+
+function waChatbotShowCompose(placeholder, onSubmit, keepActions = false) {
+  const compose = waChatbotEl("wa-chatbot-compose");
+  const input = waChatbotEl("wa-chatbot-text");
+  const send = waChatbotEl("wa-chatbot-send");
+  if (!compose || !input || !send) return;
+
+  if (!keepActions) {
+    waChatbotClearActions();
+  }
+  compose.hidden = false;
+  input.placeholder = placeholder;
+  input.value = "";
+  waChatbotState.composeHandler = onSubmit;
+
+  window.setTimeout(() => input.focus(), 120);
+}
+
+function waChatbotShowDefaultCompose() {
+  const compose = waChatbotEl("wa-chatbot-compose");
+  if (compose) compose.hidden = false;
+  waChatbotResetComposeHandler();
+}
+
+function waChatbotSubmitCompose() {
+  const input = waChatbotEl("wa-chatbot-text");
+  if (!input) return;
+  const value = input.value.trim();
+  if (!value) return;
+
+  waChatbotAddMessage(value, "user");
+  input.value = "";
+
+  if (typeof waChatbotState.composeHandler === "function") {
+    const handler = waChatbotState.composeHandler;
+    waChatbotState.composeHandler = null;
+    handler(value);
+    return;
+  }
+
+  waChatbotHandleUserText(value);
+}
+
+function waChatbotShowOptions(options) {
+  const actions = waChatbotEl("wa-chatbot-actions");
+  if (!actions) return;
+
+  waChatbotClearActions();
+  waChatbotShowDefaultCompose();
+
+  options.forEach((option) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = option.primary ? "wa-chatbot-cta" : "wa-chatbot-chip";
+    button.textContent = option.label;
+    button.addEventListener("click", () => {
+      if (option.userEcho) {
+        waChatbotAddMessage(option.label, "user");
+      }
+      option.action();
+    });
+    actions.appendChild(button);
+  });
+}
+
+function waChatbotNormalizeText(text) {
+  return String(text || "").toLowerCase().trim();
+}
+
+function waChatbotMatchProduct(text) {
+  const normalized = waChatbotNormalizeText(text);
+  let best = null;
+  let bestScore = 0;
+
+  Object.entries(WA_PRODUCT_KNOWLEDGE).forEach(([product, data]) => {
+    let score = 0;
+    if (normalized.includes(waChatbotNormalizeText(product))) score += 3;
+    (data.keywords || []).forEach((keyword) => {
+      if (normalized.includes(keyword)) score += 1;
+    });
+    if (score > bestScore) {
+      bestScore = score;
+      best = product;
+    }
+  });
+
+  return bestScore > 0 ? best : null;
+}
+
+function waChatbotProductLabel(product) {
+  return product.replace(" Insurance", "").replace("Domestic Package", "Home");
+}
+
+function waChatbotEducateProduct(product, section = "overview") {
+  const info = WA_PRODUCT_KNOWLEDGE[product];
+  if (!info) return;
+
+  waChatbotState.step = "education";
+  waChatbotState.product = product;
+  waChatbotSavePrefs({ lastIntent: "learn", lastProduct: product });
+
+  if (section === "overview") {
+    waChatbotAddMessage(`${product}`, "bot", "wa-chatbot-msg--edu-title");
+    waChatbotAddMessage(info.summary);
+    if (info.whoFor) {
+      waChatbotAddMessage(`Who it's for: ${info.whoFor}`, "bot", "wa-chatbot-msg--edu");
+    }
+    waChatbotAddMessage("Explore what's covered, common questions, or related products below.");
+  } else if (section === "covers") {
+    waChatbotAddMessage(`What ${waChatbotProductLabel(product)} typically includes:`, "bot", "wa-chatbot-msg--edu");
+    (info.covers || []).forEach((item) => {
+      waChatbotAddMessage(`• ${item}`, "bot", "wa-chatbot-msg--edu");
+    });
+  } else if (section === "goodToKnow") {
+    waChatbotAddMessage("Good to know:", "bot", "wa-chatbot-msg--edu");
+    (info.goodToKnow || []).forEach((item) => {
+      waChatbotAddMessage(item, "bot", "wa-chatbot-msg--edu");
+    });
+    if (info.tip) waChatbotAddMessage(info.tip, "bot", "wa-chatbot-msg--edu");
+  } else if (section === "faq") {
+    const faq = info.faq?.[0];
+    if (faq) {
+      waChatbotAddMessage(`Q: ${faq.q}`, "bot", "wa-chatbot-msg--edu");
+      waChatbotAddMessage(`A: ${faq.a}`, "bot", "wa-chatbot-msg--edu");
+    }
+    const faq2 = info.faq?.[1];
+    if (faq2) {
+      waChatbotAddMessage(`Q: ${faq2.q}`, "bot", "wa-chatbot-msg--edu");
+      waChatbotAddMessage(`A: ${faq2.a}`, "bot", "wa-chatbot-msg--edu");
+    }
+  }
+
+  waChatbotShowEducationActions(product);
+}
+
+function waChatbotShowEducationActions(product) {
+  const info = WA_PRODUCT_KNOWLEDGE[product];
+  const options = [
+    {
+      label: "What's covered?",
+      userEcho: true,
+      action: () => waChatbotEducateProduct(product, "covers")
+    },
+    {
+      label: "Good to know",
+      userEcho: true,
+      action: () => waChatbotEducateProduct(product, "goodToKnow")
+    },
+    {
+      label: "Common questions",
+      userEcho: true,
+      action: () => waChatbotEducateProduct(product, "faq")
+    }
+  ];
+
+  if (info?.relatedProducts?.length) {
+    options.push({
+      label: "Related products",
+      userEcho: true,
+      action: () => waChatbotShowRelatedProducts(product)
+    });
+  }
+
+  if (info?.pageLink) {
+    options.push({
+      label: "Read full guide",
+      userEcho: true,
+      action: () => {
+        waChatbotAddMessage(`Open our ${waChatbotProductLabel(product)} advisory page for more detail.`);
+        window.open(info.pageLink, "_blank", "noopener");
+        waChatbotShowEducationActions(product);
+      }
+    });
+  }
+
+  options.push({
+    label: "Get a quote",
+    userEcho: true,
+    action: () => {
+      waChatbotState.intent = "quote";
+      waChatbotSavePrefs({ lastIntent: "quote", lastProduct: product });
+      waChatbotSelectProductForQuote(product);
+    }
+  });
+  options.push({
+    label: "Browse more products",
+    action: () => waChatbotStartEducation()
+  });
+
+  waChatbotShowOptions(options);
+}
+
+function waChatbotShowRelatedProducts(product) {
+  const info = WA_PRODUCT_KNOWLEDGE[product];
+  const related = info?.relatedProducts || [];
+  if (!related.length) {
+    waChatbotAddMessage("No related products listed — try browsing by category.");
+    waChatbotAskEducationCategory();
+    return;
+  }
+
+  waChatbotAddMessage(`Products often paired with ${waChatbotProductLabel(product)}:`);
+  waChatbotShowOptions(
+    related.map((relatedProduct) => ({
+      label: waChatbotProductLabel(relatedProduct),
+      userEcho: true,
+      action: () => waChatbotEducateProduct(relatedProduct, "overview")
+    }))
+  );
+}
+
+function waChatbotStartEducation() {
+  waChatbotState.intent = "learn";
+  waChatbotState.step = "education_menu";
+  waChatbotSavePrefs({ lastIntent: "learn" });
+  waChatbotAddMessage("I can explain ADT's insurance products — what they cover, who they're for, and how they fit your situation.");
+  waChatbotAddMessage("Pick a category below, or type a product name (e.g. motor, WIBA, medical, marine).");
+  waChatbotAskEducationCategory();
+}
+
+function waChatbotAskEducationCategory() {
+  waChatbotState.step = "education_category";
+  waChatbotShowOptions([
+  ...Object.entries(WA_EDUCATION_CATEGORIES).map(([key, cat]) => ({
+      label: cat.label,
+      userEcho: true,
+      action: () => waChatbotShowEducationProductList(key)
+    })),
+    {
+      label: "All products A–Z",
+      userEcho: true,
+      action: () => waChatbotAskEducationProduct()
+    },
+    {
+      label: "Help me choose",
+      userEcho: true,
+      action: () => waChatbotEducationChooser()
+    }
+  ]);
+}
+
+function waChatbotShowEducationProductList(categoryKey) {
+  const category = WA_EDUCATION_CATEGORIES[categoryKey];
+  if (!category) return;
+
+  waChatbotAddMessage(category.intro);
+  waChatbotAddMessage("Which product would you like to learn about?");
+  waChatbotShowOptions(
+    category.products.map((product) => ({
+      label: waChatbotProductLabel(product),
+      userEcho: true,
+      action: () => waChatbotEducateProduct(product, "overview")
+    }))
+  );
+}
+
+function waChatbotAskEducationProduct() {
+  waChatbotState.step = "education_pick";
+  waChatbotAddMessage("Select a product to learn about:");
+  waChatbotShowOptions(
+    Object.keys(WA_PRODUCT_KNOWLEDGE).map((product) => ({
+      label: waChatbotProductLabel(product),
+      userEcho: true,
+      action: () => waChatbotEducateProduct(product, "overview")
+    }))
+  );
+}
+
+function waChatbotEducationChooser() {
+  waChatbotState.step = "education_chooser";
+  waChatbotAddMessage("Let's find the right type of cover. Who are you mainly looking to protect?");
+  waChatbotShowOptions([
+    {
+      label: "Myself / my family",
+      userEcho: true,
+      action: () => {
+        waChatbotAddMessage("For individuals and families, we usually start with medical, motor, home, or travel cover.");
+        waChatbotShowEducationProductList("personal");
+      }
+    },
+    {
+      label: "My business / employees",
+      userEcho: true,
+      action: () => {
+        waChatbotAddMessage("For businesses, typical starting points are WIBA (mandatory), fire & stock cover, and liability.");
+        waChatbotShowEducationProductList("business");
+      }
+    },
+    {
+      label: "Goods in transit / fleet",
+      userEcho: true,
+      action: () => {
+        waChatbotAddMessage("For transport and logistics, motor fleet and marine/cargo cover are usually critical.");
+        waChatbotShowEducationProductList("logistics");
+      }
+    }
+  ]);
+}
+
+function waChatbotShowProductInfo(product, offerQuote = true) {
+  waChatbotEducateProduct(product, "overview");
+  if (!offerQuote) return;
+}
+
+function waChatbotHandleUserText(text) {
+  const normalized = waChatbotNormalizeText(text);
+
+  if (/^(hi|hello|hey|habari|good morning|good afternoon)\b/.test(normalized)) {
+    waChatbotAddMessage("Hello! I'm here to help with quotes, claims, and learning about insurance products.");
+    waChatbotShowMainMenu(false);
+    return;
+  }
+
+  if (/(hours|open|closed|when.*open|business hours)/.test(normalized)) {
+    waChatbotAddMessage(waChatbotGetHoursMessage());
+    waChatbotShowMainMenu(false);
+    return;
+  }
+
+  if (/(phone|call|contact|email|number|reach)/.test(normalized)) {
+    waChatbotAddMessage("Business line: +254 711 533 245 · Claims desk: +254 785 227 772 · Email: info@adtinsurance.co.ke · Office: Kilindini Plaza, Mombasa.");
+    waChatbotShowMainMenu(false);
+    return;
+  }
+
+  if (/(learn|educate|explain|tell me about|what is|what are|how does|guide me|teach me)/.test(normalized)) {
+    const matchedLearn = waChatbotMatchProduct(text);
+    if (matchedLearn) {
+      waChatbotEducateProduct(matchedLearn, "overview");
+      return;
+    }
+    waChatbotStartEducation();
+    return;
+  }
+
+  if (/(what (insurance|cover|policy) do i need|which (product|policy|cover)|help me choose|what should i get)/.test(normalized)) {
+    waChatbotEducationChooser();
+    return;
+  }
+
+  if (/(difference between|compare|vs\.?|versus)/.test(normalized)) {
+    waChatbotShowComparisonGuide(normalized);
+    return;
+  }
+
+  if (/(what.*covered|what does.*cover|what's included|includes)/.test(normalized)) {
+    const matchedCovers = waChatbotMatchProduct(text) || waChatbotState.product;
+    if (matchedCovers && WA_PRODUCT_KNOWLEDGE[matchedCovers]) {
+      waChatbotEducateProduct(matchedCovers, "covers");
+      return;
+    }
+  }
+
+  if (/(claim|accident|incident|stolen|fire|damage|report)/.test(normalized) && !/(learn|explain|what is)/.test(normalized)) {
+    waChatbotAddMessage("I can help you report a claim. Urgent motor incidents? Photograph the scene first, then contact our claims desk.");
+    waChatbotState.intent = "claim";
+    waChatbotSavePrefs({ lastIntent: "claim" });
+    waChatbotAskClaimType();
+    return;
+  }
+
+  if (/(quote|price|cost|premium|how much|cover me|insure)/.test(normalized) && !/(learn|explain|what is)/.test(normalized)) {
+    waChatbotAddMessage("I'll help you get a quote. First, tell me who needs cover.");
+    waChatbotState.intent = "quote";
+    waChatbotSavePrefs({ lastIntent: "quote" });
+    waChatbotAskAudience();
+    return;
+  }
+
+  if (/(wiba|compliance|employee injury|work injury)/.test(normalized)) {
+    waChatbotEducateProduct("WIBA", "overview");
+    return;
+  }
+
+  if (/(renewal|renew|expir)/.test(normalized)) {
+    waChatbotAddMessage("Renewals are a good time to review limits, headcount, and new assets. ADT offers pre-renewal advisory — especially for corporate and SME policies.");
+    waChatbotShowOptions([
+      { label: "Book renewal review", userEcho: true, action: () => waChatbotOpenHandoff(WA_CHATBOT_NUMBERS.business, "Hello ADT, I'd like a pre-renewal insurance review.", "wa_chatbot_renewal") },
+      { label: "Learn about products", userEcho: true, action: () => waChatbotStartEducation() },
+      { label: "Back to menu", action: () => waChatbotShowMainMenu(false) }
+    ]);
+    return;
+  }
+
+  const matchedProduct = waChatbotMatchProduct(text);
+  if (matchedProduct) {
+    waChatbotEducateProduct(matchedProduct, "overview");
+    return;
+  }
+
+  waChatbotAddMessage("I can educate you on motor, medical, WIBA, business, marine, and more — or help with quotes and claims. Try typing a product name or pick an option.");
+  waChatbotShowOptions([
+    { label: "Learn about products", userEcho: true, action: () => waChatbotStartEducation() },
+    { label: "Get a quote", userEcho: true, action: () => { waChatbotState.intent = "quote"; waChatbotAskAudience(); } },
+    { label: "Main menu", action: () => waChatbotShowMainMenu(false) }
+  ]);
+}
+
+function waChatbotShowComparisonGuide(normalized) {
+  if (/(comprehensive|third.?party|tpo)/.test(normalized)) {
+    waChatbotAddMessage("Comprehensive motor: covers your vehicle plus third parties. Third-party only (TPO): legal minimum — covers damage you cause to others, not your own vehicle.");
+    waChatbotEducateProduct("Motor Insurance", "overview");
+    return;
+  }
+  if (/(wiba|medical)/.test(normalized)) {
+    waChatbotAddMessage("WIBA: mandatory compensation for work-related employee injuries. Medical insurance: health treatment cover for staff or family — they solve different problems and both may be needed.");
+    waChatbotShowOptions([
+      { label: "Learn about WIBA", userEcho: true, action: () => waChatbotEducateProduct("WIBA", "overview") },
+      { label: "Learn about Medical", userEcho: true, action: () => waChatbotEducateProduct("Medical Insurance", "overview") }
+    ]);
+    return;
+  }
+  if (/(business|liability)/.test(normalized)) {
+    waChatbotAddMessage("Business insurance: premises, stock, and interruption. Liability insurance: injury or damage claims from third parties or from your professional advice.");
+    waChatbotShowOptions([
+      { label: "Learn about Business", userEcho: true, action: () => waChatbotEducateProduct("Business Insurance", "overview") },
+      { label: "Learn about Liability", userEcho: true, action: () => waChatbotEducateProduct("Liability Insurance", "overview") }
+    ]);
+    return;
+  }
+  waChatbotAddMessage("Common comparisons: comprehensive vs third-party motor, WIBA vs medical, business vs liability. Which would you like explained?");
+  waChatbotShowOptions([
+    { label: "Motor comprehensive vs TPO", userEcho: true, action: () => waChatbotShowComparisonGuide("comprehensive vs third party") },
+    { label: "WIBA vs Medical", userEcho: true, action: () => waChatbotShowComparisonGuide("wiba vs medical") },
+    { label: "Business vs Liability", userEcho: true, action: () => waChatbotShowComparisonGuide("business vs liability") }
+  ]);
+}
+
+function waChatbotOpenHandoff(number, message, trackLabel) {
+  waChatbotSavePrefs({
+    lastIntent: waChatbotState.intent || waChatbotGetPrefs().lastIntent,
+    lastProduct: waChatbotState.product || waChatbotGetPrefs().lastProduct,
+    lastClaimType: waChatbotState.claimType || waChatbotGetPrefs().lastClaimType,
+    audience: waChatbotState.audience || waChatbotGetPrefs().audience,
+    name: waChatbotState.name || waChatbotGetPrefs().name
+  });
+
+  trackLeadEvent("whatsapp_click", { source: trackLabel || "wa_chatbot" });
+  openWhatsApp(number, message);
+
+  const hoursNote = isWithinBusinessHours()
+    ? "WhatsApp is opening with your message — tap Send to reach our team."
+    : "WhatsApp is opening — we're outside office hours but you can still send your message and we'll reply on the next working day.";
+  waChatbotAddMessage(hoursNote);
+  waChatbotShowOptions([
+    { label: "Start new chat", action: () => waChatbotStart(true) }
+  ]);
+}
+
+function waChatbotAudienceProducts(audience) {
+  const map = {
+    individual: ["Medical Insurance", "Motor Insurance", "Travel Insurance", "Domestic Package Insurance"],
+    family: ["Domestic Package Insurance", "Medical Insurance", "Motor Insurance"],
+    business: ["WIBA", "Business Insurance", "Liability Insurance", "Motor Insurance", "Asset Insurance"]
+  };
+  return map[audience] || map.individual;
+}
+
+function waChatbotAskAudience() {
+  waChatbotState.step = "quote_audience";
+  waChatbotAddMessage("Who needs cover?");
+  waChatbotShowOptions([
+    { label: "Individual", userEcho: true, action: () => waChatbotAfterAudience("individual") },
+    { label: "Family / household", userEcho: true, action: () => waChatbotAfterAudience("family") },
+    { label: "Business / employer", userEcho: true, action: () => waChatbotAfterAudience("business") }
+  ]);
+}
+
+function waChatbotAfterAudience(audience) {
+  waChatbotState.audience = audience;
+  waChatbotSavePrefs({ audience, lastIntent: "quote" });
+
+  const products = waChatbotAudienceProducts(audience);
+  waChatbotAddMessage(`For ${audience === "business" ? "your business" : audience === "family" ? "your household" : "you"}, we often recommend: ${products.slice(0, 3).join(", ")}. Which cover do you need?`);
+
+  const options = products.map((product) => ({
+    label: product.replace(" Insurance", "").replace("Domestic Package", "Home"),
+    userEcho: true,
+    action: () => waChatbotSelectProductForQuote(product)
+  }));
+  options.push({ label: "Something else", userEcho: true, action: () => waChatbotAskProduct() });
+  waChatbotShowOptions(options);
+}
+
+function waChatbotAskProduct() {
+  waChatbotState.step = "quote_product";
+  waChatbotAddMessage("Which type of cover do you need?");
+  waChatbotShowOptions(
+    Object.keys(WA_PRODUCT_KNOWLEDGE).map((product) => ({
+      label: product.replace(" Insurance", "").replace("Domestic Package", "Home"),
+      userEcho: true,
+      action: () => waChatbotSelectProductForQuote(product)
+    }))
+  );
+}
+
+function waChatbotSelectProductForQuote(product) {
+  waChatbotState.product = product;
+  waChatbotSavePrefs({ lastProduct: product, lastIntent: "quote" });
+
+  const info = WA_PRODUCT_KNOWLEDGE[product];
+  if (info?.summary) {
+    waChatbotAddMessage(info.summary);
+    if (info.tip) waChatbotAddMessage(info.tip);
+  }
+  waChatbotAskProductDetail(product);
+}
+
+function waChatbotAskProductDetail(product) {
+  const info = WA_PRODUCT_KNOWLEDGE[product];
+  waChatbotState.step = "quote_detail";
+  waChatbotState.product = product;
+
+  if (!info?.detailQuestion) {
+    waChatbotAskContactDetails();
+    return;
+  }
+
+  waChatbotAddMessage(info.detailQuestion);
+  waChatbotShowOptions(
+    info.detailOptions.map((option) => ({
+      label: option.label,
+      userEcho: true,
+      action: () => {
+        waChatbotState.productDetail = option.value;
+        waChatbotSavePrefs({ productDetail: option.value });
+        waChatbotAskContactDetails();
+      }
+    }))
+  );
+}
+
+function waChatbotAskContactDetails() {
+  waChatbotState.step = "quote_contact";
+  waChatbotAddMessage("Almost done — share your name and phone so an advisor can reach you (or skip to WhatsApp).");
+  waChatbotShowOptions([
+    { label: "Skip — open WhatsApp now", action: () => waChatbotSendQuote() }
+  ]);
+  waChatbotShowCompose("Your name and phone, e.g. Amina +2547…", (value) => {
+    waChatbotState.name = value;
+    waChatbotSavePrefs({ name: value });
+    waChatbotSendQuote();
+  }, true);
+}
+
+function waChatbotSendQuote() {
+  waChatbotState.step = "quote_handoff";
+  const nameLine = waChatbotState.name ? `Contact: ${waChatbotState.name}\n` : "";
+  const audienceLine = waChatbotState.audience ? `Audience: ${waChatbotState.audience}\n` : "";
+  const detailLine = waChatbotState.productDetail ? `Details: ${waChatbotState.productDetail}\n` : "";
+  const message = `Hello ADT, I would like a quote.\n${nameLine}${audienceLine}Cover: ${waChatbotState.product}\n${detailLine}Sent via ADT website chat.`;
+
+  waChatbotSavePrefs({
+    lastIntent: "quote",
+    lastProduct: waChatbotState.product,
+    audience: waChatbotState.audience,
+    productDetail: waChatbotState.productDetail,
+    name: waChatbotState.name
+  });
+
+  waChatbotAddMessage(waChatbotGetHoursMessage());
+  waChatbotAddMessage("Tap below to continue on WhatsApp — your details will be pre-filled.");
+  waChatbotShowOptions([
+    {
+      label: "Continue on WhatsApp",
+      primary: true,
+      action: () => waChatbotOpenHandoff(WA_CHATBOT_NUMBERS.business, message, "wa_chatbot_quote")
+    }
+  ]);
+}
+
+const WA_CLAIM_GUIDANCE = {
+  "Motor accident": "At the scene: photograph damage, plates, location, and witnesses. You'll need a police abstract and insurer notification. Our claims desk can guide you step by step.",
+  "Fire or property loss": "Secure the premises if safe, photograph damage, and list affected items. Keep receipts where possible. We help with inventory reconciliation and insurer filing.",
+  "Medical claim": "Have your policy number, provider details, and admission or treatment dates ready. We assist with pre-authorisation follow-up and co-payment questions.",
+  "Marine or cargo loss": "Document the incident at port or transit point, note bill of lading details, and photograph packaging damage. We liaise with surveyors and underwriters.",
+  "Insurance claim": "Share your policy number, incident date, and any photos or reports you already have. We'll tell you exactly what else is needed."
+};
+
+function waChatbotAskClaimType() {
+  waChatbotState.step = "claim_type";
+  waChatbotAddMessage("What type of claim is this?");
+  waChatbotShowOptions([
+    { label: "Motor accident", userEcho: true, action: () => waChatbotAfterClaimType("Motor accident") },
+    { label: "Fire / property", userEcho: true, action: () => waChatbotAfterClaimType("Fire or property loss") },
+    { label: "Medical", userEcho: true, action: () => waChatbotAfterClaimType("Medical claim") },
+    { label: "Marine / cargo", userEcho: true, action: () => waChatbotAfterClaimType("Marine or cargo loss") },
+    { label: "Other", userEcho: true, action: () => waChatbotAfterClaimType("Insurance claim") }
+  ]);
+}
+
+function waChatbotAfterClaimType(claimType) {
+  waChatbotState.claimType = claimType;
+  waChatbotSavePrefs({ lastIntent: "claim", lastClaimType: claimType });
+
+  const guidance = WA_CLAIM_GUIDANCE[claimType] || WA_CLAIM_GUIDANCE["Insurance claim"];
+  waChatbotAddMessage(guidance);
+  waChatbotAddMessage("Do you have your policy number and incident date ready?");
+
+  waChatbotShowOptions([
+    { label: "Yes — connect me on WhatsApp", userEcho: true, action: () => waChatbotSendClaim(claimType) },
+    {
+      label: "Not yet — what do I need?",
+      userEcho: true,
+      action: () => {
+        waChatbotAddMessage("Gather if you can: policy number, date/time/location, photos of damage, third-party details (motor), police abstract reference, and relevant receipts.");
+        waChatbotShowOptions([
+          { label: "Ready — open WhatsApp", primary: true, action: () => waChatbotSendClaim(claimType) }
+        ]);
+      }
+    }
+  ]);
+}
+
+function waChatbotSendClaim(claimType) {
+  waChatbotState.step = "claim_handoff";
+  const message = `Hello ADT Claims Desk, I need to report a claim.\nType: ${claimType}\nSent via ADT website chat.`;
+  waChatbotAddMessage(waChatbotGetHoursMessage());
+  waChatbotAddMessage("Claims can be logged 24/7 on WhatsApp — our desk will guide required documents.");
+  waChatbotShowOptions([
+    {
+      label: "Continue on WhatsApp",
+      primary: true,
+      action: () => waChatbotOpenHandoff(WA_CHATBOT_NUMBERS.claims, message, "wa_chatbot_claim")
+    }
+  ]);
+}
+
+function waChatbotShowMainMenu(showGreeting = true) {
+  waChatbotState.step = "menu";
+  if (showGreeting) {
+    waChatbotAddMessage("How can we help you today?");
+  }
+  waChatbotShowOptions([
+    {
+      label: "Get a quote",
+      userEcho: true,
+      action: () => {
+        waChatbotState.intent = "quote";
+        waChatbotSavePrefs({ lastIntent: "quote" });
+        waChatbotAskAudience();
+      }
+    },
+    {
+      label: "Report a claim",
+      userEcho: true,
+      action: () => {
+        waChatbotState.intent = "claim";
+        waChatbotSavePrefs({ lastIntent: "claim" });
+        waChatbotAskClaimType();
+      }
+    },
+    {
+      label: "Learn about products",
+      userEcho: true,
+      action: () => waChatbotStartEducation()
+    },
+    {
+      label: "Speak to an advisor",
+      userEcho: true,
+      action: () => {
+        waChatbotAddMessage(waChatbotGetHoursMessage());
+        waChatbotShowOptions([
+          {
+            label: "Continue on WhatsApp",
+            primary: true,
+            action: () => waChatbotOpenHandoff(
+              WA_CHATBOT_NUMBERS.business,
+              "Hello ADT, I would like to speak with an insurance advisor.",
+              "wa_chatbot_general"
+            )
+          }
+        ]);
+      }
+    }
+  ]);
+}
+
+function waChatbotResumeFromPrefs(prefs) {
+  waChatbotState.intent = prefs.lastIntent || "";
+  waChatbotState.product = prefs.lastProduct || "";
+  waChatbotState.claimType = prefs.lastClaimType || "";
+  waChatbotState.audience = prefs.audience || "";
+  waChatbotState.productDetail = prefs.productDetail || "";
+  waChatbotState.name = prefs.name || "";
+
+  if (prefs.lastIntent === "quote" && prefs.lastProduct) {
+    waChatbotAddMessage(`Continuing your ${prefs.lastProduct} quote.`);
+    if (prefs.productDetail) {
+      waChatbotAskContactDetails();
+    } else {
+      waChatbotAskProductDetail(prefs.lastProduct);
+    }
+    return;
+  }
+
+  if (prefs.lastIntent === "claim" && prefs.lastClaimType) {
+    waChatbotAddMessage(`Continuing your ${prefs.lastClaimType.toLowerCase()} claim.`);
+    waChatbotSendClaim(prefs.lastClaimType);
+    return;
+  }
+
+  if (prefs.lastIntent === "learn" && prefs.lastProduct) {
+    waChatbotAddMessage(`Continuing your lesson on ${prefs.lastProduct}.`);
+    waChatbotEducateProduct(prefs.lastProduct, "overview");
+    return;
+  }
+
+  if (prefs.lastProduct) {
+    waChatbotEducateProduct(prefs.lastProduct, "overview");
+    return;
+  }
+
+  waChatbotShowMainMenu(false);
+}
+
+function waChatbotStart(forceFresh = false) {
+  const messages = waChatbotEl("wa-chatbot-messages");
+  if (!messages) return;
+
+  waChatbotState.step = "menu";
+  waChatbotState.intent = "";
+  waChatbotState.audience = "";
+  waChatbotState.product = "";
+  waChatbotState.productDetail = "";
+  waChatbotState.claimType = "";
+  waChatbotState.name = "";
+  waChatbotState.phone = "";
+  waChatbotResetComposeHandler();
+  messages.innerHTML = "";
+  waChatbotUpdateHeaderStatus();
+
+  waChatbotAddMessage("Hi! I'm the ADT assistant — I can educate you on insurance products, help with quotes, and guide claims.");
+  waChatbotAddMessage(waChatbotGetHoursMessage(), "bot", "wa-chatbot-msg--hours");
+
+  const prefs = waChatbotGetPrefs();
+  const hasHistory = !forceFresh && (prefs.lastIntent || prefs.lastProduct || prefs.lastClaimType);
+
+  if (hasHistory) {
+    const summary = prefs.lastProduct
+      ? `your last visit was about ${prefs.lastProduct}`
+      : prefs.lastClaimType
+        ? `you were reporting a ${prefs.lastClaimType.toLowerCase()}`
+        : "you contacted us recently";
+    waChatbotAddMessage(`Welcome back — ${summary}. Would you like to continue?`);
+    waChatbotShowOptions([
+      {
+        label: "Continue where I left off",
+        userEcho: true,
+        action: () => waChatbotResumeFromPrefs(prefs)
+      },
+      {
+        label: "Start fresh",
+        userEcho: true,
+        action: () => waChatbotShowMainMenu(false)
+      }
+    ]);
+    waChatbotShowDefaultCompose();
+    return;
+  }
+
+  waChatbotShowMainMenu(false);
+}
+
+function initWhatsAppChatbot() {
+  const panel = document.getElementById("chatbot-panel");
+  if (!panel || panel.dataset.waBotReady) return;
+  panel.dataset.waBotReady = "true";
+
+  const closeBtn = panel.querySelector(".chatbot-close");
+  if (closeBtn && !closeBtn.id) {
+    closeBtn.id = "chatbot-close";
+    closeBtn.addEventListener("click", () => setChatbotOpen(false));
+  }
+
+  const send = waChatbotEl("wa-chatbot-send");
+  const input = waChatbotEl("wa-chatbot-text");
+  if (send) {
+    send.addEventListener("click", () => waChatbotSubmitCompose());
+  }
+  if (input) {
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        waChatbotSubmitCompose();
+      }
+    });
+  }
+
+  waChatbotUpdateHeaderStatus();
+  waChatbotShowDefaultCompose();
+
+  window.setInterval(() => {
+    if (document.getElementById("chatbot-panel")?.classList.contains("open")) {
+      waChatbotUpdateHeaderStatus();
+    }
+  }, 60000);
 }
 
 function initFooterContactLinks() {
@@ -1522,6 +2717,7 @@ initSessionReplay();
 initFloatingAssist();
 initTurnstile(securityConfig.turnstileSiteKey);
 initGlobalChatbot();
+initWhatsAppChatbot();
 initActiveNav();
 initPageCtaBar();
 initStickyQuoteBar();

@@ -1013,17 +1013,25 @@
     <a href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20help%20with%20insurance." target="_blank" rel="noopener" data-track="mobile_whatsapp">WhatsApp</a>
   </nav>
 
-  <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Chat with us on WhatsApp">Chat</button>
-  <aside id="chatbot-panel" class="chatbot-panel" aria-hidden="true">
-    <div class="chatbot-panel-header">
-      <h3>Chat with us on WhatsApp</h3>
+  <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Open WhatsApp chat assistant">WhatsApp</button>
+  <aside id="chatbot-panel" class="chatbot-panel wa-chatbot" aria-hidden="true" aria-label="ADT WhatsApp chat assistant">
+    <div class="chatbot-panel-header wa-chatbot-header">
+      <div class="wa-chatbot-brand">
+        <span class="wa-chatbot-avatar" aria-hidden="true">ADT</span>
+        <div>
+          <h3>ADT Advisor</h3>
+          <span class="wa-chatbot-status" id="wa-chatbot-status">Online · replies in ~5 min</span>
+        </div>
+      </div>
       <button type="button" class="chatbot-close" id="chatbot-close" aria-label="Close chat panel">&times;</button>
     </div>
-    <p>We typically reply within 5 minutes during business hours.</p>
-    <div class="chat-actions">
-      <a href="https://wa.me/254711533245?text=Hello%20ADT%2C%20I%20need%20a%20quote." class="btn btn-primary" target="_blank" rel="noopener" data-track="cta_whatsapp_chat_quote">Get a Quote</a>
-      <a href="https://wa.me/254785227772?text=Hello%20ADT%2C%20I%20need%20to%20report%20a%20claim." class="btn btn-secondary" target="_blank" rel="noopener" data-track="cta_whatsapp_chat_claim">Report a Claim</a>
+    <div class="wa-chatbot-messages" id="wa-chatbot-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+    <div class="wa-chatbot-compose" id="wa-chatbot-compose" hidden>
+      <label class="visually-hidden" for="wa-chatbot-text">Your reply</label>
+      <input type="text" id="wa-chatbot-text" class="wa-chatbot-text"       placeholder="Ask about a product, e.g. motor, WIBA, medical…" maxlength="240" autocomplete="off">
+      <button type="button" class="wa-chatbot-send" id="wa-chatbot-send" aria-label="Send message">Send</button>
     </div>
+    <div class="wa-chatbot-actions" id="wa-chatbot-actions"></div>
   </aside>
   <div id="lead-success-modal" class="lead-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="lead-modal-title">
     <div class="lead-modal-card" tabindex="-1">
