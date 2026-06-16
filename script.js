@@ -1130,7 +1130,7 @@ function initGlobalChatbot() {
     <div class="wa-chatbot-messages" id="wa-chatbot-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
     <div class="wa-chatbot-compose" id="wa-chatbot-compose" hidden>
       <label class="visually-hidden" for="wa-chatbot-text">Your reply</label>
-      <input type="text" id="wa-chatbot-text" class="wa-chatbot-text" placeholder="Ask about a product, e.g. motor, WIBA, medical…" maxlength="240" autocomplete="off">
+      <input type="text" id="wa-chatbot-text" class="wa-chatbot-text" placeholder="Type naturally, e.g. motor quote, just me…" maxlength="240" autocomplete="off">
       <button type="button" class="wa-chatbot-send" id="wa-chatbot-send" aria-label="Send message">Send</button>
     </div>
     <div class="wa-chatbot-actions" id="wa-chatbot-actions"></div>
@@ -1717,7 +1717,7 @@ function waChatbotShowEducationActions(product) {
     action: () => {
       waChatbotState.intent = "quote";
       waChatbotSavePrefs({ lastIntent: "quote", lastProduct: product });
-      waChatbotSelectProductForQuote(product);
+      waChatbotStartQuoteFlow({ product, skipBrief: true });
     }
   });
   options.push({
@@ -1835,6 +1835,203 @@ function waChatbotEducationChooser() {
   ]);
 }
 
+function waChatbotMatchAudience(text) {
+  const n = waChatbotNormalizeText(text);
+  if (/(business|company|employer|staff|employees|sme|shop|firm|my business|our company)/.test(n)) return "business";
+  if (/(family|household|spouse|wife|husband|kids|children|my home)/.test(n)) return "family";
+  if (/(^me$|^i$|myself|just me|only me|personal|individual|for me|i am the one|i'm the one|the one|my own|i am\b|im\b)/.test(n)) return "individual";
+  return null;
+}
+
+function waChatbotWantsQuote(text) {
+  const n = waChatbotNormalizeText(text);
+  return /(quote|premium|price|how much|cover me|insure|need (a )?cover|want (a )?cover|get cover|looking for cover|need insurance|want insurance)/.test(n);
+}
+
+function waChatbotWantsLearn(text) {
+  const n = waChatbotNormalizeText(text);
+  return /(learn|educate|explain|tell me about|what is|what are|how does|guide me|teach me|more about)/.test(n);
+}
+
+function waChatbotIsAffirmative(text) {
+  const n = waChatbotNormalizeText(text);
+  return /^(yes|yeah|yep|ok|okay|sure|continue|proceed|go ahead|sounds good|correct|right|please|do it|👍)$/.test(n);
+}
+
+function waChatbotIsSkip(text) {
+  const n = waChatbotNormalizeText(text);
+  return /(skip|no name|anonymous|just whatsapp|open whatsapp|later)/.test(n);
+}
+
+function waChatbotMatchDetailOption(text, product) {
+  const info = WA_PRODUCT_KNOWLEDGE[product];
+  if (!info?.detailOptions) return null;
+  const n = waChatbotNormalizeText(text);
+
+  for (const option of info.detailOptions) {
+    const label = waChatbotNormalizeText(option.label);
+    const value = waChatbotNormalizeText(option.value);
+    if (n.includes(label) || label.includes(n) || n.includes(value) || value.includes(n)) {
+      return option.value;
+    }
+  }
+
+  const motorMap = [
+    { re: /(personal vehicle|personal car|private car|personal|private|my car|own car)/, value: "Private motor" },
+    { re: /(fleet|commercial|business vehicle|delivery|lorr)/, value: "Commercial fleet" },
+    { re: /(psv|matatu|bus|hire)/, value: "PSV" }
+  ];
+  if (product === "Motor Insurance") {
+    const hit = motorMap.find((entry) => entry.re.test(n));
+    if (hit) return hit.value;
+  }
+
+  return null;
+}
+
+function waChatbotStartQuoteFlow({ product = null, audience = null, skipBrief = false } = {}) {
+  waChatbotState.intent = "quote";
+  if (product && product !== waChatbotState.product) {
+    waChatbotState.productDetail = "";
+  }
+  waChatbotSavePrefs({ lastIntent: "quote", lastProduct: product || waChatbotState.product });
+
+  if (product) waChatbotState.product = product;
+  if (audience) waChatbotState.audience = audience;
+
+  if (product && audience) {
+    if (!skipBrief) {
+      waChatbotAddMessage(`Great — let's get your ${waChatbotProductLabel(product)} quote sorted.`);
+    }
+    waChatbotAskProductDetail(product, skipBrief);
+    return;
+  }
+
+  if (product) {
+    waChatbotState.step = "quote_audience";
+    waChatbotAddMessage(`I'll help with a ${waChatbotProductLabel(product)} quote. Who is the cover for?`);
+    waChatbotShowAudienceOptions();
+    return;
+  }
+
+  if (audience) {
+    waChatbotAfterAudience(audience);
+    return;
+  }
+
+  waChatbotAskAudience();
+}
+
+function waChatbotHandleContextualText(text, normalized) {
+  const step = waChatbotState.step;
+
+  if (step === "quote_audience") {
+    const audience = waChatbotMatchAudience(text);
+    if (audience) {
+      waChatbotAfterAudience(audience, { skipBrief: Boolean(waChatbotState.product) });
+      return true;
+    }
+    const product = waChatbotMatchProduct(text);
+    if (product && !waChatbotState.product) {
+      waChatbotState.product = product;
+      waChatbotAddMessage(`Noted — ${waChatbotProductLabel(product)}. Who is the cover for?`);
+      return true;
+    }
+    waChatbotAddMessage("Please pick Individual, Family, or Business — or type e.g. \"just me\" or \"my business\".");
+    waChatbotShowAudienceOptions();
+    return true;
+  }
+
+  if (step === "quote_product") {
+    const product = waChatbotMatchProduct(text);
+    if (product) {
+      waChatbotSelectProductForQuote(product);
+      return true;
+    }
+    waChatbotAddMessage("Tap a cover type above, or type one — e.g. motor, medical, or WIBA.");
+    return true;
+  }
+
+  if (step === "quote_detail" && waChatbotState.product) {
+    const detail = waChatbotMatchDetailOption(text, waChatbotState.product);
+    if (detail) {
+      waChatbotState.productDetail = detail;
+      waChatbotSavePrefs({ productDetail: detail });
+      waChatbotAddMessage(`Perfect — ${detail}.`);
+      waChatbotAskContactDetails();
+      return true;
+    }
+    if (waChatbotIsAffirmative(text)) {
+      waChatbotAddMessage("Please choose an option below or describe your situation (e.g. personal vehicle or business fleet).");
+      waChatbotAskProductDetail(waChatbotState.product, true);
+      return true;
+    }
+    waChatbotAddMessage(`For ${waChatbotProductLabel(waChatbotState.product)}, pick an option below or describe your needs (e.g. personal vehicle).`);
+    waChatbotAskProductDetail(waChatbotState.product, true);
+    return true;
+  }
+
+  if (step === "quote_contact") {
+    if (waChatbotIsSkip(text)) {
+      waChatbotSendQuote();
+      return true;
+    }
+    if (waChatbotIsAffirmative(text)) {
+      waChatbotSendQuote();
+      return true;
+    }
+    waChatbotState.name = text;
+    waChatbotSavePrefs({ name: text });
+    waChatbotSendQuote();
+    return true;
+  }
+
+  if (step === "education" && waChatbotState.product) {
+    const detail = waChatbotMatchDetailOption(text, waChatbotState.product);
+    if (detail) {
+      waChatbotStartQuoteFlow({ product: waChatbotState.product, skipBrief: true });
+      waChatbotState.productDetail = detail;
+      waChatbotSavePrefs({ productDetail: detail });
+      waChatbotAddMessage(`Perfect — ${detail}.`);
+      waChatbotAskContactDetails();
+      return true;
+    }
+    if (waChatbotWantsQuote(text)) {
+      const audience = waChatbotMatchAudience(text);
+      waChatbotStartQuoteFlow({ product: waChatbotState.product, audience, skipBrief: true });
+      return true;
+    }
+  }
+
+  if (step === "claim_type") {
+    const claimMap = [
+      { re: /motor|accident|car|vehicle/, type: "Motor accident" },
+      { re: /fire|property|building|burglary/, type: "Fire or property loss" },
+      { re: /medical|hospital|health/, type: "Medical claim" },
+      { re: /marine|cargo|port|shipment/, type: "Marine or cargo loss" }
+    ];
+    const hit = claimMap.find((entry) => entry.re.test(normalized));
+    if (hit) {
+      waChatbotAfterClaimType(hit.type);
+      return true;
+    }
+    return false;
+  }
+
+  if (waChatbotIsAffirmative(text) && waChatbotState.product && waChatbotState.intent === "quote") {
+    if (!waChatbotState.productDetail && WA_PRODUCT_KNOWLEDGE[waChatbotState.product]?.detailOptions) {
+      waChatbotAskProductDetail(waChatbotState.product, true);
+    } else if (!waChatbotState.name) {
+      waChatbotAskContactDetails();
+    } else {
+      waChatbotSendQuote();
+    }
+    return true;
+  }
+
+  return false;
+}
+
 function waChatbotShowProductInfo(product, offerQuote = true) {
   waChatbotEducateProduct(product, "overview");
   if (!offerQuote) return;
@@ -1842,6 +2039,10 @@ function waChatbotShowProductInfo(product, offerQuote = true) {
 
 function waChatbotHandleUserText(text) {
   const normalized = waChatbotNormalizeText(text);
+
+  if (waChatbotHandleContextualText(text, normalized)) {
+    return;
+  }
 
   if (/^(hi|hello|hey|habari|good morning|good afternoon)\b/.test(normalized)) {
     waChatbotAddMessage("Hello! I'm here to help with quotes, claims, and learning about insurance products.");
@@ -1861,10 +2062,43 @@ function waChatbotHandleUserText(text) {
     return;
   }
 
-  if (/(learn|educate|explain|tell me about|what is|what are|how does|guide me|teach me)/.test(normalized)) {
-    const matchedLearn = waChatbotMatchProduct(text);
-    if (matchedLearn) {
-      waChatbotEducateProduct(matchedLearn, "overview");
+  const matchedProduct = waChatbotMatchProduct(text);
+  const wantsQuote = waChatbotWantsQuote(text);
+  const wantsLearn = waChatbotWantsLearn(text);
+  const audience = waChatbotMatchAudience(text);
+
+  if (wantsQuote) {
+    waChatbotSavePrefs({ lastIntent: "quote" });
+    if (matchedProduct) {
+      waChatbotStartQuoteFlow({ product: matchedProduct, audience });
+      return;
+    }
+    if (audience) {
+      waChatbotState.intent = "quote";
+      waChatbotAfterAudience(audience);
+      return;
+    }
+    waChatbotAddMessage("I'll help you get a quote. Who needs cover?");
+    waChatbotState.intent = "quote";
+    waChatbotAskAudience();
+    return;
+  }
+
+  if (/(claim|accident|incident|stolen|damage|report)/.test(normalized) && !wantsLearn) {
+    waChatbotAddMessage("I can help you report a claim. Urgent motor incidents? Photograph the scene first, then contact our claims desk.");
+    waChatbotState.intent = "claim";
+    waChatbotSavePrefs({ lastIntent: "claim" });
+    waChatbotAskClaimType();
+    return;
+  }
+
+  if (wantsLearn || /(difference between|compare|vs\.?|versus)/.test(normalized)) {
+    if (/(difference between|compare|vs\.?|versus)/.test(normalized)) {
+      waChatbotShowComparisonGuide(normalized);
+      return;
+    }
+    if (matchedProduct) {
+      waChatbotEducateProduct(matchedProduct, "overview");
       return;
     }
     waChatbotStartEducation();
@@ -1876,37 +2110,20 @@ function waChatbotHandleUserText(text) {
     return;
   }
 
-  if (/(difference between|compare|vs\.?|versus)/.test(normalized)) {
-    waChatbotShowComparisonGuide(normalized);
-    return;
-  }
-
   if (/(what.*covered|what does.*cover|what's included|includes)/.test(normalized)) {
-    const matchedCovers = waChatbotMatchProduct(text) || waChatbotState.product;
-    if (matchedCovers && WA_PRODUCT_KNOWLEDGE[matchedCovers]) {
-      waChatbotEducateProduct(matchedCovers, "covers");
+    const product = matchedProduct || waChatbotState.product;
+    if (product && WA_PRODUCT_KNOWLEDGE[product]) {
+      waChatbotEducateProduct(product, "covers");
       return;
     }
   }
 
-  if (/(claim|accident|incident|stolen|fire|damage|report)/.test(normalized) && !/(learn|explain|what is)/.test(normalized)) {
-    waChatbotAddMessage("I can help you report a claim. Urgent motor incidents? Photograph the scene first, then contact our claims desk.");
-    waChatbotState.intent = "claim";
-    waChatbotSavePrefs({ lastIntent: "claim" });
-    waChatbotAskClaimType();
-    return;
-  }
-
-  if (/(quote|price|cost|premium|how much|cover me|insure)/.test(normalized) && !/(learn|explain|what is)/.test(normalized)) {
-    waChatbotAddMessage("I'll help you get a quote. First, tell me who needs cover.");
-    waChatbotState.intent = "quote";
-    waChatbotSavePrefs({ lastIntent: "quote" });
-    waChatbotAskAudience();
-    return;
-  }
-
-  if (/(wiba|compliance|employee injury|work injury)/.test(normalized)) {
-    waChatbotEducateProduct("WIBA", "overview");
+  if (/(wiba|compliance|employee injury|work injury)/.test(normalized) && !matchedProduct) {
+    if (wantsLearn) {
+      waChatbotEducateProduct("WIBA", "overview");
+    } else {
+      waChatbotStartQuoteFlow({ product: "WIBA", audience });
+    }
     return;
   }
 
@@ -1920,16 +2137,29 @@ function waChatbotHandleUserText(text) {
     return;
   }
 
-  const matchedProduct = waChatbotMatchProduct(text);
   if (matchedProduct) {
-    waChatbotEducateProduct(matchedProduct, "overview");
+    if (audience) {
+      waChatbotStartQuoteFlow({ product: matchedProduct, audience });
+      return;
+    }
+    waChatbotAddMessage(`Would you like a quote for ${waChatbotProductLabel(matchedProduct)}, or to learn how it works?`);
+    waChatbotShowOptions([
+      { label: `Get ${waChatbotProductLabel(matchedProduct)} quote`, userEcho: true, action: () => waChatbotStartQuoteFlow({ product: matchedProduct }) },
+      { label: `Learn about ${waChatbotProductLabel(matchedProduct)}`, userEcho: true, action: () => waChatbotEducateProduct(matchedProduct, "overview") }
+    ]);
     return;
   }
 
-  waChatbotAddMessage("I can educate you on motor, medical, WIBA, business, marine, and more — or help with quotes and claims. Try typing a product name or pick an option.");
+  if (audience) {
+    waChatbotStartQuoteFlow({ audience });
+    return;
+  }
+
+  waChatbotAddMessage("I didn't quite catch that. Try \"motor quote\", \"just me\", \"explain WIBA\", or pick an option below.");
   waChatbotShowOptions([
+    { label: "Get a quote", userEcho: true, action: () => waChatbotStartQuoteFlow({}) },
     { label: "Learn about products", userEcho: true, action: () => waChatbotStartEducation() },
-    { label: "Get a quote", userEcho: true, action: () => { waChatbotState.intent = "quote"; waChatbotAskAudience(); } },
+    { label: "Report a claim", userEcho: true, action: () => { waChatbotState.intent = "claim"; waChatbotAskClaimType(); } },
     { label: "Main menu", action: () => waChatbotShowMainMenu(false) }
   ]);
 }
@@ -1997,24 +2227,37 @@ function waChatbotAudienceProducts(audience) {
 function waChatbotAskAudience() {
   waChatbotState.step = "quote_audience";
   waChatbotAddMessage("Who needs cover?");
+  waChatbotShowAudienceOptions();
+}
+
+function waChatbotShowAudienceOptions() {
   waChatbotShowOptions([
-    { label: "Individual", userEcho: true, action: () => waChatbotAfterAudience("individual") },
-    { label: "Family / household", userEcho: true, action: () => waChatbotAfterAudience("family") },
-    { label: "Business / employer", userEcho: true, action: () => waChatbotAfterAudience("business") }
+    { label: "Individual", userEcho: true, action: () => waChatbotAfterAudience("individual", { skipBrief: Boolean(waChatbotState.product) }) },
+    { label: "Family / household", userEcho: true, action: () => waChatbotAfterAudience("family", { skipBrief: Boolean(waChatbotState.product) }) },
+    { label: "Business / employer", userEcho: true, action: () => waChatbotAfterAudience("business", { skipBrief: Boolean(waChatbotState.product) }) }
   ]);
 }
 
-function waChatbotAfterAudience(audience) {
+function waChatbotAfterAudience(audience, { skipBrief = false } = {}) {
   waChatbotState.audience = audience;
   waChatbotSavePrefs({ audience, lastIntent: "quote" });
 
+  const pendingProduct = waChatbotState.product;
+
+  if (pendingProduct) {
+    waChatbotAddMessage(`Got it — ${audience === "individual" ? "cover for you" : audience === "family" ? "household cover" : "business cover"}.`);
+    waChatbotAskProductDetail(pendingProduct, skipBrief);
+    return;
+  }
+
   const products = waChatbotAudienceProducts(audience);
+  waChatbotState.step = "quote_product";
   waChatbotAddMessage(`For ${audience === "business" ? "your business" : audience === "family" ? "your household" : "you"}, we often recommend: ${products.slice(0, 3).join(", ")}. Which cover do you need?`);
 
   const options = products.map((product) => ({
     label: product.replace(" Insurance", "").replace("Domestic Package", "Home"),
     userEcho: true,
-    action: () => waChatbotSelectProductForQuote(product)
+    action: () => waChatbotSelectProductForQuote(product, skipBrief)
   }));
   options.push({ label: "Something else", userEcho: true, action: () => waChatbotAskProduct() });
   waChatbotShowOptions(options);
@@ -2032,19 +2275,19 @@ function waChatbotAskProduct() {
   );
 }
 
-function waChatbotSelectProductForQuote(product) {
+function waChatbotSelectProductForQuote(product, skipBrief = false) {
   waChatbotState.product = product;
+  waChatbotState.intent = "quote";
   waChatbotSavePrefs({ lastProduct: product, lastIntent: "quote" });
 
   const info = WA_PRODUCT_KNOWLEDGE[product];
-  if (info?.summary) {
+  if (!skipBrief && info?.summary) {
     waChatbotAddMessage(info.summary);
-    if (info.tip) waChatbotAddMessage(info.tip);
   }
-  waChatbotAskProductDetail(product);
+  waChatbotAskProductDetail(product, true);
 }
 
-function waChatbotAskProductDetail(product) {
+function waChatbotAskProductDetail(product, skipRepeatQuestion = false) {
   const info = WA_PRODUCT_KNOWLEDGE[product];
   waChatbotState.step = "quote_detail";
   waChatbotState.product = product;
@@ -2054,7 +2297,9 @@ function waChatbotAskProductDetail(product) {
     return;
   }
 
-  waChatbotAddMessage(info.detailQuestion);
+  if (!skipRepeatQuestion) {
+    waChatbotAddMessage(info.detailQuestion);
+  }
   waChatbotShowOptions(
     info.detailOptions.map((option) => ({
       label: option.label,
@@ -2173,11 +2418,7 @@ function waChatbotShowMainMenu(showGreeting = true) {
     {
       label: "Get a quote",
       userEcho: true,
-      action: () => {
-        waChatbotState.intent = "quote";
-        waChatbotSavePrefs({ lastIntent: "quote" });
-        waChatbotAskAudience();
-      }
+      action: () => waChatbotStartQuoteFlow({})
     },
     {
       label: "Report a claim",
@@ -2280,7 +2521,7 @@ function waChatbotStart(forceFresh = false) {
       : prefs.lastClaimType
         ? `you were reporting a ${prefs.lastClaimType.toLowerCase()}`
         : "you contacted us recently";
-    waChatbotAddMessage(`Welcome back — ${summary}. Would you like to continue?`);
+    waChatbotAddMessage(`Welcome back — ${summary}. Continue below, or type something new (e.g. \"motor quote\").`);
     waChatbotShowOptions([
       {
         label: "Continue where I left off",
