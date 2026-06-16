@@ -1108,8 +1108,8 @@ function initGlobalChatbot() {
   toggle.id = "chatbot-toggle";
   toggle.className = "chatbot-toggle";
   toggle.type = "button";
-  toggle.setAttribute("aria-label", "Open WhatsApp chat assistant");
-  toggle.textContent = "WhatsApp";
+  toggle.setAttribute("aria-label", "Open chat assistant");
+  toggle.textContent = "Chat";
 
   const panel = document.createElement("aside");
   panel.id = "chatbot-panel";
