@@ -1,75 +1,122 @@
-# ADT Insurance Website
+# ADT Africa Insurance Brokers — Premium Insurance Platform
 
-Modern claims-first marketing website with:
+Kenya's claims-first insurance brokerage website. Built with Next.js 15, React 19, TypeScript, Tailwind CSS, Framer Motion, and Supabase.
 
-- Conversion-focused multi-step lead forms
-- Backend lead routing (email + CRM + Google Sheets webhooks)
-- GA4 and Meta Pixel tracking hooks
-- SEO landing pages and insights/blog scaffolding
-- Claims guide, resources hub, and case-study pages
-- CMS scaffold via Decap (`admin/`)
+**Brand promise:** *Claims Before Sales* — We don't just sell insurance. We help you recover when the unexpected happens.
+
+## Features
+
+### Marketing & Conversion
+- Premium homepage with hero video, glassmorphism stats, and dynamic trust indicators
+- 17 insurance product cards with dedicated SEO landing pages
+- Claims-first section with process timeline
+- Progressive 4-step quote form with completion progress
+- Sticky "Get a Quote in 30 minutes" widget
+- WhatsApp floating button with instant quote, claims, and callback actions
+- Client testimonials (written, corporate, video-ready)
+
+### Tools & Intelligence
+- **Insurance Calculators:** Motor premium, medical, retirement planning, education savings
+- **Quote Comparison Engine:** Side-by-side premiums, benefits, excess, exclusions
+- **Claims Tracker:** Real-time status by claim number + phone
+- **AI Insurance Advisor:** OpenAI/Gemini-powered with local knowledge fallback
+- **ADT Knowledge Hub:** Searchable blog with categories, related articles, FAQ schema
+
+### Customer Portal (Supabase)
+- JWT authentication with magic link support
+- View policies, track claims, download documents
+- Policy renewals and change requests (schema ready)
+
+### SEO & Performance
+- Dynamic meta titles/descriptions per page
+- JSON-LD: InsuranceAgency, LocalBusiness, FAQ, Article schemas
+- Dynamic XML sitemap and robots.txt
+- Server Components, optimized static generation
+- Target: Lighthouse 95+ (mobile-first, fast loading)
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Framework | Next.js 15 (App Router) |
+| UI | React 19, TypeScript, Tailwind CSS 4 |
+| Animation | Framer Motion |
+| Auth & DB | Supabase (PostgreSQL, JWT) |
+| AI | OpenAI GPT / Google Gemini |
+| CDN | Cloudflare (production) |
 
 ## Setup
 
 1. Install dependencies:
-   - `npm install`
-2. Create env file:
-   - copy `.env.example` to `.env`
-3. Run site and API:
-   - `npm run dev`
-4. Open:
-   - `http://localhost:3000`
+   ```bash
+   npm install
+   ```
 
-## Lead Delivery Flow
+2. Create environment file:
+   ```bash
+   copy .env.example .env
+   ```
 
-`/api/leads/quote`, `/api/leads/claim`, and `/api/leads/status-check` submit to:
+3. Configure `.env` (minimum for local dev):
+   - `NEXT_PUBLIC_SITE_URL=http://localhost:3000`
+   - Optional: `OPENAI_API_KEY` or `GEMINI_API_KEY` for AI advisor
+   - Optional: Supabase keys for customer portal
 
-- Local backup file: `data/leads.ndjson`
-- Resend email (if configured)
-- CRM webhook (if configured)
+4. Run development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000)
+
+## Supabase Setup (Customer Portal)
+
+1. Create a Supabase project at [supabase.com](https://supabase.com)
+2. Run `supabase/schema.sql` in the SQL Editor
+3. Add keys to `.env`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your-project-url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   ```
+
+## Lead Delivery
+
+`/api/leads/quote` and `/api/leads/claim` submit to:
+- Local backup: `data/leads.ndjson`
+- Resend email (if `RESEND_API_KEY` configured)
+- CRM webhook (if `CRM_WEBHOOK_URL` configured)
 - Google Sheets webhook (if configured)
 
-## Production Hardening
+## Blog / Knowledge Hub
 
-- Honeypot bot trap fields are enforced server-side
-- Minimum human fill-time check (`form-loaded-at`)
-- In-memory per-IP rate limiting on lead endpoints
-- Server-side input sanitization and field validation
-- Optional Cloudflare Turnstile verification
-- Optional origin allowlist for lead endpoints
-- Security headers on all responses
-- Tunable limits via `.env`:
-  - `RATE_LIMIT_WINDOW_MS`
-  - `RATE_LIMIT_MAX_REQUESTS`
-  - `MAX_FIELD_LENGTH`
-  - `ALLOWED_ORIGINS`
-  - `TURNSTILE_SECRET_KEY`
+- Source markdown: `content/insights/`
+- Build JSON feed: `npm run build:blog`
+- Served at `/knowledge-hub`
 
-## Blog/CMS Flow
+## Legacy Site
 
-- Source markdown posts in `content/insights/`
-- Build JSON feed with `npm run build:blog`
-- Blog pages:
-  - `blog.html`
-  - `blog-post.html?slug=...`
-- CMS scaffold:
-  - `admin/index.html`
-  - `admin/config.yml`
+The original static HTML site files remain in the repo root for reference. The Next.js app is now the primary site. To run the legacy Express server: `npm run legacy:server`
 
-## Analytics
+## Production Deployment
 
-Update placeholders in `analytics-config.js`:
+Deploy to Vercel, Cloudflare Pages, or any Node.js host:
 
-- `window.ADT_ANALYTICS.ga4MeasurementId`
-- `window.ADT_ANALYTICS.metaPixelId`
-- `window.ADT_SECURITY.turnstileSiteKey`
+```bash
+npm run build
+npm start
+```
 
-Tracked events include CTA clicks, template picks, quote submissions, claim submissions, status update requests, and errors.
+Configure environment variables in your hosting dashboard. Point `adtinsurance.co.ke` DNS to your deployment with Cloudflare CDN for edge caching.
 
-Standard events now include:
+## Key Routes
 
-- `form_start`
-- `cta_click`
-- `whatsapp_click`
-- `file_download`
-- `generate_lead`
+| Route | Purpose |
+|-------|---------|
+| `/` | Premium homepage |
+| `/insurance/[slug]` | SEO product landing pages |
+| `/knowledge-hub` | Insurance learning centre |
+| `/calculators` | Premium & planning calculators |
+| `/compare-quotes` | Quote comparison engine |
+| `/claims-tracker` | Claim status lookup |
+| `/portal` | Customer self-service portal |
+| `/api/ai/advisor` | AI insurance assistant |

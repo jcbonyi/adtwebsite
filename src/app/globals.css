@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy-900: #0f1c3a;
+  --color-navy-800: #152750;
+  --color-adt-blue: #1496be;
+  --color-adt-green: #8cb450;
+  --color-gold: #c0a15e;
+  --color-charcoal: #464646;
+  --color-gray-50: #f8f9fb;
+  --color-gray-100: #f1f3f7;
+  --color-gray-300: #e2e6ef;
+  --color-gray-500: #6b7289;
+  --color-gray-700: #3d4458;
+
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+
+  --radius-card: 20px;
+  --radius-btn: 12px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-gray-50 text-charcoal font-sans antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    @apply text-navy-900 font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  .container-adt {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+  }
+
+  .section-padding {
+    @apply py-16 md:py-24;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-widest text-adt-blue;
+  }
+
+  .glass-card {
+    @apply rounded-[var(--radius-card)] border border-white/20 bg-white/70 backdrop-blur-xl shadow-lg;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-[var(--radius-btn)] bg-adt-blue px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#1178a0] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-adt-blue focus-visible:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-[var(--radius-btn)] bg-navy-900 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 focus-visible:ring-offset-2;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-[var(--radius-btn)] border-2 border-white/40 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2;
+  }
+
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 rounded-[var(--radius-btn)] bg-gold px-6 py-3 text-sm font-semibold text-navy-900 transition-all hover:bg-[#d4b06e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2;
+  }
+
+  .section-head {
+    @apply mb-12 max-w-2xl;
+  }
+
+  .section-head-center {
+    @apply mx-auto mb-12 max-w-2xl text-center;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-adt-blue to-adt-green bg-clip-text text-transparent;
+  }
+
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+}
