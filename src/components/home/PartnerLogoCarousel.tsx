@@ -164,7 +164,7 @@ export function PartnerLogoCarousel() {
                 <img
                   src={partner.src}
                   alt={partner.name}
-                  className="max-h-12 w-full object-contain grayscale transition-all hover:grayscale-0 sm:max-h-14"
+                  className="max-h-12 w-full object-contain sm:max-h-14"
                   loading="lazy"
                   draggable={false}
                 />
