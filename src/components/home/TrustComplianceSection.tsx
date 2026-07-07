@@ -1,8 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { MapPin, Phone, Mail, Star } from "lucide-react";
-import { PARTNER_LOGOS } from "@/lib/data/content";
+import { PartnerLogoCarousel } from "@/components/home/PartnerLogoCarousel";
 import { SITE } from "@/lib/constants";
 
 export function TrustComplianceSection() {
@@ -14,25 +13,7 @@ export function TrustComplianceSection() {
           <h2 className="text-3xl md:text-4xl">Regulated, Recognised, Reliable</h2>
         </div>
 
-        <div className="mb-12 grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7">
-          {PARTNER_LOGOS.map((partner, i) => (
-            <motion.div
-              key={partner.name}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
-              className="flex items-center justify-center rounded-xl border border-gray-300/50 bg-gray-50 p-3"
-            >
-              <img
-                src={partner.src}
-                alt={partner.name}
-                className="h-8 w-auto object-contain grayscale transition-all hover:grayscale-0"
-                loading="lazy"
-              />
-            </motion.div>
-          ))}
-        </div>
+        <PartnerLogoCarousel />
 
         <div className="grid gap-8 md:grid-cols-3">
           <div className="rounded-[var(--radius-card)] border border-gray-300/50 bg-gray-50 p-6">
