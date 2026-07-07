@@ -5,13 +5,10 @@ export const PARTNER_LOGOS = [
   { name: "Sanlam Allianz", src: "/assets/logos/sanlam-allianz.png" },
   { name: "Old Mutual", src: "/assets/logos/oldmutual.png" },
   { name: "Randsure", src: "/assets/logos/randsure.png" },
-  { name: "CIC Insurance", src: "/assets/logos/cic.png" },
   { name: "Jubilee Insurance", src: "/assets/logos/jubilee.png" },
   { name: "Britam", src: "/assets/logos/britam.png" },
   { name: "APA Insurance", src: "/assets/logos/apa.png" },
-  { name: "UAP Old Mutual", src: "/assets/logos/uap.png" },
-  { name: "Heritage Insurance", src: "/assets/logos/heritage.png" },
-  { name: "Directline Assurance", src: "/assets/logos/directline.png" },
+  { name: "AAY Health", src: "/assets/logos/aay-health.png" },
 ];
 
 export const CLAIMS_FEATURES = [
