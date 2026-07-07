@@ -6,12 +6,13 @@ import { PARTNER_LOGOS } from "@/lib/data/content";
 
 export function PartnerLogoCarousel() {
   const viewportRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
   const [canScroll, setCanScroll] = useState(false);
 
   const pauseAutoRef = useRef(false);
   const pointerActiveRef = useRef(false);
   const resumeAtRef = useRef(0);
+
+  const loopedLogos = [...PARTNER_LOGOS, ...PARTNER_LOGOS];
 
   const pauseAuto = useCallback((ms = 700) => {
     pauseAutoRef.current = true;
@@ -19,13 +20,13 @@ export function PartnerLogoCarousel() {
   }, []);
 
   const getLoopWidth = useCallback(() => {
-    const track = trackRef.current;
-    return track ? track.scrollWidth / 2 : 0;
+    const viewport = viewportRef.current;
+    return viewport ? viewport.scrollWidth / 2 : 0;
   }, []);
 
   const getScrollStep = useCallback(() => {
-    const track = trackRef.current;
-    const card = track?.querySelector<HTMLElement>("[data-partner-card]");
+    const viewport = viewportRef.current;
+    const card = viewport?.querySelector<HTMLElement>("[data-partner-card]");
     return card ? card.offsetWidth + 16 : 212;
   }, []);
 
@@ -64,15 +65,6 @@ export function PartnerLogoCarousel() {
   );
 
   useEffect(() => {
-    const track = trackRef.current;
-    if (!track || track.dataset.cloned === "true") return;
-
-    Array.from(track.children).forEach((card) => {
-      const clone = card.cloneNode(true);
-      clone.setAttribute("aria-hidden", "true");
-      track.appendChild(clone);
-    });
-    track.dataset.cloned = "true";
     setCanScroll(true);
   }, []);
 
@@ -148,7 +140,7 @@ export function PartnerLogoCarousel() {
         <div
           ref={viewportRef}
           className="overflow-x-auto scrollbar-none cursor-grab select-none"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          style={{ scrollbarWidth: "none" }}
           aria-label="Partner insurer logos"
           tabIndex={0}
           onPointerDown={onPointerDown}
@@ -161,11 +153,12 @@ export function PartnerLogoCarousel() {
             resumeAtRef.current = Date.now();
           }}
         >
-          <div ref={trackRef} className="flex w-max gap-4 py-1">
-            {PARTNER_LOGOS.map((partner) => (
+          <div className="flex w-max gap-4 py-1">
+            {loopedLogos.map((partner, index) => (
               <div
-                key={partner.name}
+                key={`${partner.name}-${index}`}
                 data-partner-card
+                aria-hidden={index >= PARTNER_LOGOS.length}
                 className="flex h-[84px] w-[168px] shrink-0 items-center justify-center rounded-xl border border-gray-300/50 bg-gray-50 px-4 py-3 transition-all hover:-translate-y-0.5 hover:border-adt-blue/30 hover:shadow-md sm:h-[92px] sm:w-[196px]"
               >
                 <img
