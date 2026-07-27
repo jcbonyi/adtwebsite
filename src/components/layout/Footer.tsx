@@ -25,17 +25,17 @@ export function Footer() {
               <li><Link href="/insurance/medical-insurance-kenya" className="hover:text-adt-blue">Medical Insurance</Link></li>
               <li><Link href="/insurance/business-insurance" className="hover:text-adt-blue">Business Insurance</Link></li>
               <li><Link href="/insurance/wiba-insurance-kenya" className="hover:text-adt-blue">WIBA</Link></li>
-              <li><Link href="/insurance/marine-cargo-insurance-kenya" className="hover:text-adt-blue">Marine Cargo</Link></li>
+              <li><Link href="/insurance" className="hover:text-adt-blue">View all products</Link></li>
             </ul>
           </div>
 
           <div>
             <h3 className="mb-4 text-sm font-semibold text-white">Resources</h3>
             <ul className="space-y-2 text-sm">
+              <li><Link href="/resources" className="hover:text-adt-blue">Tools & Resources</Link></li>
               <li><Link href="/claims-tracker" className="hover:text-adt-blue">Track a Claim</Link></li>
               <li><Link href="/knowledge-hub" className="hover:text-adt-blue">Knowledge Hub</Link></li>
-              <li><Link href="/calculators" className="hover:text-adt-blue">Insurance Calculators</Link></li>
-              <li><Link href="/compare-quotes" className="hover:text-adt-blue">Compare Quotes</Link></li>
+              <li><Link href="/calculators" className="hover:text-adt-blue">Calculators</Link></li>
               <li><Link href="/portal" className="hover:text-adt-blue">Client Portal</Link></li>
             </ul>
           </div>

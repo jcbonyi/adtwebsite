@@ -4,7 +4,6 @@ import { TopBar, Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { StickyQuoteWidget } from "@/components/layout/StickyQuoteWidget";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
-import { InsuranceAssistant } from "@/components/chat/InsuranceAssistant";
 import { SITE, BRAND_MESSAGE } from "@/lib/constants";
 import "./globals.css";
 
@@ -67,7 +66,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Footer />
         <StickyQuoteWidget />
         <WhatsAppButton />
-        <InsuranceAssistant />
       </body>
     </html>
   );

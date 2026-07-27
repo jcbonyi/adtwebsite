@@ -64,7 +64,7 @@ export function QuoteForm() {
   }
 
   return (
-    <div className="rounded-[var(--radius-card)] border border-gray-300/50 bg-white p-6 md:p-8" id="quote">
+    <div className="rounded-[var(--radius-card)] border border-gray-300/50 bg-white p-6 md:p-8">
       <h2 className="mb-2 text-2xl font-bold">Get a Free Quote</h2>
       <p className="mb-6 text-sm text-gray-500">Complete in 4 easy steps — quote in 30 minutes</p>
 

@@ -15,8 +15,8 @@ const QUICK_PROMPTS = [
   "What is WIBA cover?",
 ];
 
-export function InsuranceAssistant() {
-  const [open, setOpen] = useState(false);
+export function InsuranceAssistant({ startOpen = false }: { startOpen?: boolean }) {
+  const [open, setOpen] = useState(startOpen);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",

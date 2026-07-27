@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Phone, Mail, Star } from "lucide-react";
+import { MapPin, Phone, Star } from "lucide-react";
 import { PartnerLogoCarousel } from "@/components/home/PartnerLogoCarousel";
 import { SITE } from "@/lib/constants";
 
@@ -9,7 +9,7 @@ export function TrustComplianceSection() {
     <section className="section-padding bg-white" id="trust">
       <div className="container-adt">
         <div className="section-head-center">
-          <p className="eyebrow mb-3">Trust & Compliance</p>
+          <p className="eyebrow mb-3">Why ADT · Trust & Compliance</p>
           <h2 className="text-3xl md:text-4xl">Regulated, Recognised, Reliable</h2>
         </div>
 

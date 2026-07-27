@@ -1,28 +1,10 @@
 import { HeroSection } from "@/components/home/HeroSection";
-import { WhyChooseSection } from "@/components/home/WhyChooseSection";
 import { ProductsHub } from "@/components/home/ProductsHub";
 import { ClaimsFirstSection } from "@/components/home/ClaimsFirstSection";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
-import { CalculatorsPreview } from "@/components/home/CalculatorsPreview";
-import { KnowledgeHubPreview } from "@/components/home/KnowledgeHubPreview";
 import { TrustComplianceSection } from "@/components/home/TrustComplianceSection";
 import { QuoteForm } from "@/components/forms/QuoteForm";
-import { getBlogPosts } from "@/lib/blog";
 import { SITE, BRAND_MESSAGE } from "@/lib/constants";
-
-function BrandMarquee() {
-  return (
-    <div className="overflow-hidden bg-navy-900 py-3 text-white/80" aria-hidden="true">
-      <div className="animate-marquee flex whitespace-nowrap">
-        {[...Array(2)].map((_, i) => (
-          <span key={i} className="mx-8 text-sm font-medium tracking-widest">
-            ADT &bull; CLAIMS BEFORE SALES &bull; SEAMLESS SERVICE &bull; PROMPT ACTION &bull; TAILORED COVER &bull;
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function JsonLd() {
   const schema = {
@@ -86,23 +68,17 @@ function JsonLd() {
   );
 }
 
-export default async function HomePage() {
-  const posts = await getBlogPosts();
-
+export default function HomePage() {
   return (
     <>
       <JsonLd />
       <HeroSection />
-      <BrandMarquee />
-      <WhyChooseSection />
-      <ProductsHub />
       <ClaimsFirstSection />
+      <ProductsHub />
       <TestimonialsSection />
-      <CalculatorsPreview />
-      <KnowledgeHubPreview posts={posts} />
       <TrustComplianceSection />
 
-      <section className="section-padding bg-gray-50">
+      <section className="section-padding bg-gray-50" id="quote">
         <div className="container-adt">
           <div className="mx-auto max-w-2xl">
             <QuoteForm />

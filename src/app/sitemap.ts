@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { INSURANCE_PRODUCTS, SEO_LANDING_SLUGS } from "@/lib/data/products";
+import { SEO_LANDING_SLUGS } from "@/lib/data/products";
 import { getBlogPosts } from "@/lib/blog";
 import { SITE } from "@/lib/constants";
 
@@ -9,6 +9,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticPages = [
     "",
+    "/insurance",
+    "/resources",
     "/calculators",
     "/claims-tracker",
     "/compare-quotes",
