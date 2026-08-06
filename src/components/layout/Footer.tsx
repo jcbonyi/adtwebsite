@@ -10,7 +10,7 @@ export function Footer() {
             <img
               src="/assets/images/adt-logo.png"
               alt="ADT Insurance"
-              className="mb-4 h-10 brightness-0 invert"
+              className="mb-4 h-14 w-auto brightness-0 invert"
             />
             <p className="text-sm leading-relaxed">{BRAND_MESSAGE}</p>
             <p className="mt-4 text-xs text-white/50">

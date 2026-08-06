@@ -55,12 +55,12 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-300/50 bg-white/80 backdrop-blur-xl">
-      <div className="container-adt flex h-[72px] items-center justify-between gap-4">
+      <div className="container-adt flex h-[84px] items-center justify-between gap-4">
         <Link href="/" className="shrink-0" aria-label="ADT Insurance home">
           <img
             src="/assets/images/adt-logo.png"
             alt="ADT Insurance"
-            className="h-10 w-auto"
+            className="h-14 w-auto md:h-16"
           />
         </Link>
 

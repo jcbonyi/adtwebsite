@@ -25,6 +25,18 @@
     scroll-behavior: smooth;
   }
 
+  html.adt-loading body {
+    overflow: hidden;
+  }
+
+  html.adt-loading::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 199;
+    background: #0f1c3a;
+  }
+
   body {
     @apply bg-gray-50 text-charcoal font-sans antialiased;
   }
