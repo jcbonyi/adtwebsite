@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 const KNOWLEDGE_BASE = `
 ADT Africa Insurance Brokers is Kenya's claims-first insurance brokerage based in Mombasa.
-IRA Registration: IRA/BRK/053
 Claims Desk: +254 785 227 772
 WhatsApp: +254 711 533 245
 

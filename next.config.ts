@@ -22,6 +22,7 @@ const nextConfig: NextConfig = {
       { source: "/how-claims-work.html", destination: "/#claims", permanent: true },
       { source: "/resources.html", destination: "/knowledge-hub", permanent: true },
       { source: "/case-studies.html", destination: "/#trust", permanent: true },
+      { source: "/calculators", destination: "/resources", permanent: true },
     ];
   },
   async headers() {

@@ -8,7 +8,6 @@ export const SITE = {
   whatsapp: "254711533245",
   email: "info@adtinsurance.co.ke",
   address: "Kilindini Plaza, Moi Avenue, Mombasa, Kenya",
-  iraReg: "IRA/BRK/053",
   hours: "Mon–Fri 8:00 AM – 5:00 PM",
 } as const;
 

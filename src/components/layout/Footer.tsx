@@ -13,9 +13,6 @@ export function Footer() {
               className="mb-4 h-14 w-auto brightness-0 invert"
             />
             <p className="text-sm leading-relaxed">{BRAND_MESSAGE}</p>
-            <p className="mt-4 text-xs text-white/50">
-              IRA Reg. No. {SITE.iraReg}
-            </p>
           </div>
 
           <div>
@@ -35,7 +32,7 @@ export function Footer() {
               <li><Link href="/resources" className="hover:text-adt-blue">Tools & Resources</Link></li>
               <li><Link href="/claims-tracker" className="hover:text-adt-blue">Track a Claim</Link></li>
               <li><Link href="/knowledge-hub" className="hover:text-adt-blue">Knowledge Hub</Link></li>
-              <li><Link href="/calculators" className="hover:text-adt-blue">Calculators</Link></li>
+              <li><Link href="/compare-quotes" className="hover:text-adt-blue">Compare Quotes</Link></li>
               <li><Link href="/portal" className="hover:text-adt-blue">Client Portal</Link></li>
             </ul>
           </div>

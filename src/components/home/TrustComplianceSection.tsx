@@ -49,7 +49,6 @@ export function TrustComplianceSection() {
             <p className="text-sm text-gray-500">
               Rated highly by clients for claims support and responsive advisory.
             </p>
-            <p className="mt-2 text-xs text-gray-400">IRA Reg. {SITE.iraReg}</p>
           </div>
         </div>
       </div>

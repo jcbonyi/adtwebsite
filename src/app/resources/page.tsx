@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   BookOpen,
-  Calculator,
   Scale,
   Search,
   Shield,
@@ -13,7 +12,7 @@ import { InsuranceAssistant } from "@/components/chat/InsuranceAssistant";
 export const metadata: Metadata = {
   title: "Resources & Tools",
   description:
-    "ADT Insurance tools — calculators, quote comparison, claims tracker, knowledge hub, client portal, and AI advisor.",
+    "ADT Insurance tools — quote comparison, claims tracker, knowledge hub, client portal, and AI advisor.",
 };
 
 const TOOLS = [
@@ -22,12 +21,6 @@ const TOOLS = [
     title: "Knowledge Hub",
     description: "Guides, claims tips, and risk management articles.",
     icon: BookOpen,
-  },
-  {
-    href: "/calculators",
-    title: "Insurance Calculators",
-    description: "Motor, medical, retirement, and education estimates.",
-    icon: Calculator,
   },
   {
     href: "/compare-quotes",

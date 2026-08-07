@@ -15,7 +15,6 @@ const NAV_LINKS = [
 const RESOURCE_LINKS = [
   { href: "/resources", label: "All Resources" },
   { href: "/knowledge-hub", label: "Knowledge Hub" },
-  { href: "/calculators", label: "Calculators" },
   { href: "/compare-quotes", label: "Compare Quotes" },
   { href: "/claims-tracker", label: "Track a Claim" },
   { href: "/portal", label: "Client Portal" },

@@ -16,7 +16,6 @@ Kenya's claims-first insurance brokerage website. Built with Next.js 15, React 1
 - Client testimonials (written, corporate, video-ready)
 
 ### Tools & Intelligence
-- **Insurance Calculators:** Motor premium, medical, retirement planning, education savings
 - **Quote Comparison Engine:** Side-by-side premiums, benefits, excess, exclusions
 - **Claims Tracker:** Real-time status by claim number + phone
 - **AI Insurance Advisor:** OpenAI/Gemini-powered with local knowledge fallback
@@ -115,7 +114,6 @@ Configure environment variables in your hosting dashboard. Point `adtinsurance.c
 | `/` | Premium homepage |
 | `/insurance/[slug]` | SEO product landing pages |
 | `/knowledge-hub` | Insurance learning centre |
-| `/calculators` | Premium & planning calculators |
 | `/compare-quotes` | Quote comparison engine |
 | `/claims-tracker` | Claim status lookup |
 | `/portal` | Customer self-service portal |
